@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>맵 마스터 v2.8 (최종 통합본)</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<style>
+/* 1. 레이아웃 및 공통 스타일 */
+html, body { margin: 0; padding: 0; height: 100%; font-family: 'Pretendard', sans-serif; overflow: hidden; background: #eee; }
+#captureArea { position: relative; width: 100%; height: 100%; }
+#map { width: 100%; height: 100%; z-index: 1; }
+
+/* 2. 상단 검색 및 레이어 */
+.top-bar { position: absolute; top: 10px; left: 10px; right: 10px; z-index: 1000; display: flex; gap: 6px; }
+.search-container { flex: 1; display: flex; background: rgba(255,255,255,0.9); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); backdrop-filter: blur(10px); }
+#searchInput { flex: 1; border: none; padding: 12px; font-size: 15px; outline: none; background: transparent; }
+.layer-toggle-btn { width: 45px; height: 45px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); cursor: pointer; border: none; }
+
+.layer-menu { position: absolute; top: 60px; left: 10px; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); display: none; z-index: 1100; overflow: hidden; border: 1px solid #eee; }
+.layer-opt { padding: 15px 25px; font-size: 14px; border-bottom: 1px solid #f8f9fa; cursor: pointer; }
+
+/* 3. 우측 플로팅 버튼 */
+.side-btns { position: absolute; top: 65px; right: 10px; z-index: 900; display: flex; flex-direction: column; gap: 10px; }
+.fab { width: 44px; height: 44px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 18px; color: #444; cursor: pointer; border: 1px solid rgba(0,0,0,0.05); }
+.fab.active { background: #007bff; color: white; border-color: #007bff; }
+
+/* 4. 하단 통합 패널 */
+.bottom-panel { position: absolute; bottom: 0; left: 0; right: 0; z-index: 1001; background: white; border-radius: 24px 24px 0 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.1); padding-bottom: env(safe-area-inset-bottom); }
+.panel-header { display: flex; border-bottom: 1px solid #f0f0f0; }
+.tab-btn { flex: 1; padding: 18px 0; text-align: center; font-size: 14px; font-weight: bold; color: #aaa; cursor: pointer; }
+.tab-btn.active { color: #007bff; position: relative; }
+.tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 30%; width: 40%; height: 3px; background: #007bff; border-radius: 3px; }
+.panel-content { padding: 15px; min-height: 120px; max-height: 300px; overflow-y: auto; }
+
+/* 5. 위치 정보 카드 및 액션 버튼 */
+.info-card { background: #1a1c24; border-radius: 18px; padding: 18px; color: white; display: none; flex-direction: column; gap: 12px; }
+.addr-val { font-size: 14px; line-height: 1.5; font-weight: 500; }
+.coord-val { font-size: 12px; color: #888; }
+.card-actions { display: grid; grid-template-columns: 1.5fr 1fr; gap: 8px; }
+.btn-kakao { background: #fee500; color: #181600; border: none; border-radius: 10px; padding: 12px; font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-save-img { background: #333; color: white; border: none; border-radius: 10px; padding: 12px; font-weight: bold; font-size: 14px; cursor: pointer; }
+
+/* 6. 측정 도구 디자인 */
+.measure-tools { display: none; flex-direction: column; gap: 15px; }
+.tool-row { display: flex; gap: 8px; }
+.tool-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #eee; background: #f8f9fa; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 500; }
+.tool-btn.active { background: #e7f1ff; border-color: #007bff; color: #007bff; }
+.reset-btn { width: 100%; padding: 14px; background: #ff4757; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+
+/* 토스트 및 라벨 */
+.toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 30px; z-index: 2000; font-size: 14px; display: none; pointer-events: none; }
+.dist-label { background: white; border: 1px solid #007bff; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; color: #007bff; }
+.area-label { background: rgba(0, 123, 255, 0.9); color: white; padding: 6px 12px; border-radius: 20px; font-size: 13px; border: 1.5px solid white; pointer-events: none; text-align: center; }
+</style>
+</head>
+<body>
+
+<div id="captureArea">
+    <div id="map"></div>
+    <div id="toast" class="toast"></div>
+</div>
+
+<div class="top-bar">
+    <div class="search-container">
+        <input id="searchInput" type="text" placeholder="장소, 건물 검색" onkeydown="if(event.key==='Enter') doSearch()">
+    </div>
+    <button class="layer-toggle-btn" onclick="toggleLayerMenu()"><i class="fas fa-layer-group"></i></button>
+</div>
+
+<div class="layer-menu" id="layerMenu">
+    <div class="layer-opt" onclick="setBaseLayer('vworld_base')">🗺️ 일반 지도</div>
+    <div class="layer-opt" onclick="setBaseLayer('vworld_sat')">🛰️ 위성 지도</div>
+    <div class="layer-opt" onclick="setBaseLayer('google')">🌐 구글 지도</div>
+</div>
+
+<div class="side-btns">
+    <div class="fab" id="gpsBtn" onclick="toggleGPS()"><i class="fas fa-crosshairs"></i></div>
+    <div class="fab" id="rvBtn" onclick="toggleRoadView()"><i class="fas fa-street-view"></i></div>
+    <div class="fab" onclick="window.location.reload()"><i class="fas fa-sync-alt"></i></div>
+</div>
+
+<div class="bottom-panel">
+    <div class="panel-header">
+        <div class="tab-btn active" id="tabLoc" onclick="switchTab('loc')">내 위치/공유</div>
+        <div class="tab-btn" id="tabMeas" onclick="switchTab('meas')">거리/면적 측정</div>
+    </div>
+    
+    <div class="panel-content">
+        <div id="locSection">
+            <div id="locPlaceholder" style="text-align:center; color:#888; padding: 10px 0;">지도를 클릭하거나 GPS를 켜세요.</div>
+            <div id="locCard" class="info-card">
+                <div id="addrText" class="addr-val">주소를 불러오고 있습니다...</div>
+                <div id="coordText" class="coord-val">Lat, Lng 정보</div>
+                <div class="card-actions">
+                    <button class="btn-kakao" onclick="shareLikeKakao()">
+                        <i class="fas fa-comment"></i> 카톡 위치전송
+                    </button>
+                    <button class="btn-save-img" onclick="saveAsImage()">이미지 저장</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="measSection" class="measure-tools">
+            <div class="tool-row">
+                <div class="tool-btn active" id="m_line" onclick="setMode('line')">📏 거리</div>
+                <div class="tool-btn" id="m_poly" onclick="setMode('polygon')">📐 면적</div>
+                <div class="tool-btn" id="m_circle" onclick="setMode('circle')">⭕ 반경 500m</div>
+            </div>
+            <button class="reset-btn" onclick="resetAll()">측정 데이터 초기화</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/** [1] 지도 설정 및 레이어 **/
+const map = L.map('map', { zoomControl: false, attributionControl: false }).setView([37.5665, 126.9780], 16);
+const layers = {
+    vworld_base: L.tileLayer('https://xdworld.vworld.kr/2d/Base/service/{z}/{x}/{y}.png', { crossOrigin: true }),
+    vworld_sat: L.layerGroup([
+        L.tileLayer('https://xdworld.vworld.kr/2d/Satellite/service/{z}/{x}/{y}.jpeg', { crossOrigin: true }),
+        L.tileLayer('https://xdworld.vworld.kr/2d/Hybrid/service/{z}/{x}/{y}.png', { crossOrigin: true })
+    ]),
+    google: L.tileLayer('https://mt0.google.com/vt/lyrs=m&hl=ko&x={x}&y={y}&z={z}', { crossOrigin: true })
+};
+layers.vworld_base.addTo(map);
+
+function setBaseLayer(key) {
+    Object.values(layers).forEach(l => map.removeLayer(l));
+    layers[key].addTo(map);
+    document.getElementById('layerMenu').style.display = 'none';
+}
+function toggleLayerMenu() {
+    const m = document.getElementById('layerMenu');
+    m.style.display = m.style.display === 'block' ? 'none' : 'block';
+}
+
+/** [2] GPS 추적 및 이동 동기화 **/
+let myMarker = null;
+let watchId = null;
+let currentAddr = "";
+let currentLatLng = null;
+
+function toggleGPS() {
+    const btn = document.getElementById('gpsBtn');
+    if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+        btn.classList.remove('active');
+        if (myMarker) map.removeLayer(myMarker);
+        myMarker = null;
+        return;
+    }
+    btn.classList.add('active');
+    watchId = navigator.geolocation.watchPosition((pos) => {
+        const ll = L.latLng(pos.coords.latitude, pos.coords.longitude);
+        if (!myMarker) {
+            myMarker = L.circleMarker(ll, { radius: 10, color: 'white', weight: 3, fillColor: '#007bff', fillOpacity: 1 }).addTo(map);
+            map.panTo(ll);
+        } else { myMarker.setLatLng(ll); map.panTo(ll); }
+        updateInfo(ll);
+        switchTab('loc');
+    }, null, { enableHighAccuracy: true });
+}
+
+async function updateInfo(latlng) {
+    currentLatLng = latlng;
+    document.getElementById('locPlaceholder').style.display = 'none';
+    document.getElementById('locCard').style.display = 'flex';
+    document.getElementById('coordText').innerText = `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
+    try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`, { headers: { 'Accept-Language': 'ko' } });
+        const d = await res.json();
+        currentAddr = d.display_name.split(',').reverse().join(' ').trim();
+        document.getElementById('addrText').innerText = currentAddr;
+    } catch(e) { currentAddr = "위치 정보 수신 중..."; }
+}
+
+/** [3] 공유 및 이미지 저장 (핵심 신규 기능) **/
+async function shareLikeKakao() {
+    if(!currentLatLng) return;
+    const kakaoMapUrl = `https://map.kakao.com/link/map/${encodeURIComponent(currentAddr)},${currentLatLng.lat},${currentLatLng.lng}`;
+    const shareText = `[위치 공유]\n📌 주소: ${currentAddr}\n\n아래 링크를 클릭하면 지도로 연결됩니다.\n${kakaoMapUrl}`;
+    if (navigator.share) {
+        navigator.share({ title: '내 위치 정보', text: shareText }).catch(() => copyToClipboard(shareText));
+    } else { copyToClipboard(shareText); }
+}
+
+function saveAsImage() {
+    if(!currentLatLng) return;
+    showToast("이미지 생성 중...");
+    html2canvas(document.getElementById('captureArea'), { useCORS: true }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `위치기록_${new Date().getTime()}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+        showToast("이미지가 저장되었습니다.");
+    });
+}
+
+/** [4] 기존 거리/면적 측정 로직 (완전 복구) **/
+let currentMode = 'line', points = [], mapObjs = [], isRV = false;
+
+function setMode(m) {
+    currentMode = m;
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('m_' + (m==='polygon'?'poly':m==='circle'?'circle':'line')).classList.add('active');
+    resetCurrent();
+}
+
+map.on('click', e => {
+    if(isRV) { window.open(`https://map.kakao.com/link/roadview/${e.latlng.lat},${e.latlng.lng}`); return; }
+    updateInfo(e.latlng);
+    if(currentMode !== 'circle') { points.push(e.latlng); redraw(); }
+    else { drawCircle(e.latlng); }
+});
+
+function redraw() {
+    mapObjs.forEach(o => map.removeLayer(o)); mapObjs = [];
+    points.forEach(p => mapObjs.push(L.circleMarker(p, {radius:5, color:'#ff4757', fillColor:'#fff', fillOpacity:1, weight:2}).addTo(map)));
+    if(currentMode === 'line' && points.length > 1) {
+        const poly = L.polyline(points, {color:'#007bff', weight:3, dashArray: '5, 5'}).addTo(map);
+        mapObjs.push(poly);
+        const dist = points.reduce((acc,cur,idx,arr)=> idx>0?acc+map.distance(arr[idx-1],cur):0, 0);
+        mapObjs.push(L.marker(points[points.length-1], {icon: L.divIcon({className:'dist-label', html:fmtD(dist)})}).addTo(map));
+    } else if(currentMode === 'polygon' && points.length >= 3) {
+        const poly = L.polygon(points, {color:'#007bff', fillColor:'#007bff', fillOpacity:0.1, weight:2}).addTo(map);
+        mapObjs.push(poly);
+        const area = computeArea(points);
+        mapObjs.push(L.marker(poly.getBounds().getCenter(), {icon: L.divIcon({className:'area-label', html:`${Math.round(area).toLocaleString()}㎡<br>(${(area/3.3058).toFixed(1)}평)`, iconSize:[100, 40]})}).addTo(map));
+    }
+}
+
+function drawCircle(center) {
+    resetCurrent();
+    const c = L.circle(center, {radius:500, color:'#007bff', weight:2, fillOpacity:0.1}).addTo(map);
+    mapObjs.push(c);
+    mapObjs.push(L.marker(center, {icon: L.divIcon({className:'dist-label', html:'반경 500m'})}).addTo(map));
+}
+
+/** [5] 유틸리티 및 인터페이스 **/
+function switchTab(type) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('locSection').style.display = 'none';
+    document.getElementById('measSection').style.display = 'none';
+    if(type === 'loc') {
+        document.getElementById('tabLoc').classList.add('active');
+        document.getElementById('locSection').style.display = 'block';
+    } else {
+        document.getElementById('tabMeas').classList.add('active');
+        document.getElementById('measSection').style.display = 'flex';
+    }
+}
+
+async function doSearch() {
+    const q = document.getElementById('searchInput').value;
+    if(!q) return;
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}`);
+    const d = await r.json();
+    if(d.length > 0) {
+        const ll = L.latLng(d[0].lat, d[0].lon);
+        map.setView(ll, 16); updateInfo(ll);
+    }
+}
+
+function toggleRoadView() { isRV = !isRV; document.getElementById('rvBtn').classList.toggle('active', isRV); }
+function resetCurrent() { points = []; mapObjs.forEach(o => map.removeLayer(o)); mapObjs = []; }
+function resetAll() { resetCurrent(); }
+function fmtD(d) { return d>=1000 ? (d/1000).toFixed(2)+'km' : Math.round(d)+'m'; }
+function computeArea(pts) { 
+    const R=6378137; let a=0; 
+    for(let i=0;i<pts.length;i++){ 
+        let p1=pts[i], p2=pts[(i+1)%pts.length]; 
+        let x1=p1.lng*(Math.PI/180)*R*Math.cos(p1.lat*Math.PI/180), y1=p1.lat*(Math.PI/180)*R; 
+        let x2=p2.lng*(Math.PI/180)*R*Math.cos(p2.lat*Math.PI/180), y2=p2.lat*(Math.PI/180)*R; 
+        a += x1*y2 - x2*y1; 
+    } return Math.abs(a/2); 
+}
+function copyToClipboard(t) { navigator.clipboard.writeText(t); showToast("주소/링크가 복사되었습니다."); }
+function showToast(m) { const t=document.getElementById('toast'); t.innerText=m; t.style.display='block'; setTimeout(()=>t.style.display='none', 2500); }
+</script>
+</body>
+</html>
