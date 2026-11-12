@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>한식뷔페 다시갈지도</title>
+  <style>
+    :root {
+      --pickle-surface-page: #F4F6F9;
+      --pickle-surface-card: #FFFFFF;
+      --pickle-surface-fill-faint: #EBF0F5;
+      --pickle-surface-fill-soft: #DFE6ED;
+      --pickle-text-primary: #191F28;
+      --pickle-text-secondary: #4E5968;
+      --pickle-text-tertiary: #8B95A1;
+      --pickle-border-hairline: #E5E8EB;
+      --pickle-radius-card: 14px;
+      --pickle-radius-pill: 999px;
+      --pickle-accent-primary: #E03E3E;
+      --pickle-accent-green: #0E8A16;
+      --pickle-accent-blue: #1E64D4;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: var(--pickle-surface-page);
+      color: var(--pickle-text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "맑은 고딕", sans-serif;
+      line-height: 1.45;
+      padding-bottom: 70px;
+    }
+    .app-container {
+      max-width: 520px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--pickle-surface-page);
+    }
+    
+    /* Top Bar */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--pickle-border-hairline);
+      padding: 10px 14px;
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .brand-icon {
+      font-size: 22px;
+    }
+    .brand-title {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--pickle-text-primary);
+    }
+    .brand-badge {
+      font-size: 11px;
+      background: #FFEAEA;
+      color: #E03E3E;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: var(--pickle-radius-pill);
+    }
+    .header-actions {
+      display: flex;
+      gap: 5px;
+    }
+    .action-btn {
+      border: 1px solid var(--pickle-border-hairline);
+      background: #fff;
+      color: var(--pickle-text-primary);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 9px;
+      border-radius: var(--pickle-radius-pill);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.2s;
+    }
+    .action-btn.active {
+      background: #FFEAEA;
+      border-color: #E03E3E;
+      color: #E03E3E;
+    }
+
+    /* Search Box */
+    .search-box {
+      position: relative;
+    }
+    .search-input {
+      width: 100%;
+      height: 38px;
+      background: var(--pickle-surface-fill-faint);
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 0 12px 0 34px;
+      font-size: 13px;
+      color: var(--pickle-text-primary);
+      outline: none;
+      transition: all 0.2s;
+    }
+    .search-input:focus {
+      background: #fff;
+      border-color: #3182F6;
+      box-shadow: 0 0 0 2px rgba(49, 130, 246, 0.15);
+    }
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: var(--pickle-text-tertiary);
+    }
+    .clear-search {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--pickle-text-tertiary);
+      color: #fff;
+      border: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      font-size: 10px;
+      cursor: pointer;
+      display: none;
+    }
+
+    /* Date & Realtime Live Status Banner */
+    .today-live-bar {
+      padding: 7px 14px;
+      background: #191F28;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+    }
+    .today-date-text {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .live-time-indicator {
+      color: #A6AFB8;
+      font-size: 11px;
+    }
+
+    /* Map Section */
+    .map-toggle-bar {
+      padding: 7px 14px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--pickle-border-hairline);
+    }
+    .map-toggle-btn {
+      background: none;
+      border: none;
+      font-size: 12px;
+      font-weight: 700;
+      color: #1E64D4;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+    }
+    .interactive-map-box {
+      background: #FFFFFF;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--pickle-border-hairline);
+      display: block;
+    }
+    .map-svg-container {
+      background: #EEF2F6;
+      border-radius: 10px;
+      padding: 10px;
+      border: 1px solid var(--pickle-border-hairline);
+    }
+    .map-cluster-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--pickle-text-secondary);
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .cluster-pins {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .cluster-pin {
+      background: #fff;
+      border: 1px solid #D0D7DE;
+      padding: 3px 7px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .cluster-pin:hover, .cluster-pin.active {
+      background: #E8F3FF;
+      border-color: #3182F6;
+      color: #1E64D4;
+    }
+
+    /* Filter Bar */
+    .filter-section {
+      padding: 8px 14px;
+      background: #fff;
+      border-bottom: 1px solid var(--pickle-border-hairline);
+    }
+    .region-tabs {
+      display: flex;
+      gap: 5px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin-bottom: 6px;
+    }
+    .region-tabs::-webkit-scrollbar { display: none; }
+    .region-tab {
+      flex-shrink: 0;
+      padding: 5px 10px;
+      border-radius: var(--pickle-radius-pill);
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--pickle-surface-fill-faint);
+      color: var(--pickle-text-secondary);
+      border: none;
+      cursor: pointer;
+    }
+    .region-tab.active {
+      background: var(--pickle-text-primary);
+      color: #fff;
+    }
+
+    .tag-chips {
+      display: flex;
+      gap: 5px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tag-chips::-webkit-scrollbar { display: none; }
+    .tag-chip {
+      flex-shrink: 0;
+      padding: 3px 8px;
+      border-radius: var(--pickle-radius-pill);
+      font-size: 11px;
+      background: #fff;
+      border: 1px solid var(--pickle-border-hairline);
+      color: var(--pickle-text-secondary);
+      cursor: pointer;
+    }
+    .tag-chip.active {
+      background: #E8F3FF;
+      border-color: #3182F6;
+      color: #1E64D4;
+      font-weight: 700;
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--pickle-text-secondary);
+    }
+    .savings-badge {
+      background: #EAF8E8;
+      color: var(--pickle-accent-green);
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: var(--pickle-radius-pill);
+    }
+
+    /* Card List (Compact & Fast) */
+    .card-list {
+      padding: 0 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .buffet-card {
+      background: var(--pickle-surface-card);
+      border-radius: var(--pickle-radius-card);
+      border: 1px solid var(--pickle-border-hairline);
+      padding: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+    }
+
+    /* Live Open/Closed Status Badges */
+    .status-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .status-open { background: #EAF8E8; color: #0E8A16; }
+    .status-break { background: #FFF4E5; color: #D9730D; }
+    .status-closed { background: #FFF1F0; color: #E03E3E; }
+
+    .card-top-badges {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .badge-gasan { background: #E8F3FF; color: #1E64D4; }
+    .badge-guro { background: #FFF4E5; color: #D9730D; }
+    .badge-gwang { background: #EAF8E8; color: #0E8A16; }
+    .badge-price { background: #FFEAEA; color: #E03E3E; margin-left: auto; font-size: 13px; font-weight: 800; }
+
+    .card-title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--pickle-text-primary);
+    }
+    .fav-btn {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: #D1D6DB;
+      padding: 0 4px;
+    }
+    .fav-btn.active {
+      color: #FFB300;
+    }
+
+    .meta-line {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--pickle-text-secondary);
+      margin-bottom: 8px;
+    }
+    .meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    /* Compact Today Menu Box with Real vs Sample Badge */
+    .menu-compact-box {
+      background: #FFFDF5;
+      border: 1px solid #FDE68A;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .menu-compact-box.real-menu-box {
+      background: #F0FDF4;
+      border-color: #BBF7D0;
+    }
+    .menu-compact-header {
+      font-weight: 800;
+      font-size: 11px;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .badge-real-label {
+      background: #DCFCE7;
+      color: #15803D;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+    }
+    .badge-sample-label {
+      background: #FEF3C7;
+      color: #B45309;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+    }
+
+    .menu-compact-main {
+      color: #191F28;
+      font-weight: 700;
+    }
+    .menu-compact-sub {
+      color: #4E5968;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .tag {
+      font-size: 11px;
+      background: #F2F4F6;
+      color: #4E5968;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px dashed var(--pickle-border-hairline);
+      padding-top: 8px;
+    }
+    .revisit-vote {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .revisit-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--pickle-text-tertiary);
+    }
+    .vote-btn {
+      border: 1px solid var(--pickle-border-hairline);
+      background: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 6px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      color: var(--pickle-text-secondary);
+    }
+    .vote-btn.voted-up {
+      background: #EAF8E8;
+      border-color: #0E8A16;
+      color: #0E8A16;
+      font-weight: 700;
+    }
+    .vote-btn.voted-down {
+      background: #FFF1F0;
+      border-color: #E03E3E;
+      color: #E03E3E;
+    }
+
+    .card-btn-group {
+      display: flex;
+      gap: 5px;
+    }
+    .map-link-btn {
+      font-size: 11px;
+      color: #0E8A16;
+      background: #EAF8E8;
+      border: none;
+      padding: 4px 7px;
+      border-radius: 5px;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+    .menu-info-btn {
+      font-size: 11px;
+      color: #1E64D4;
+      background: #E8F3FF;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--pickle-text-tertiary);
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 8px; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal {
+      background: #fff;
+      width: 100%;
+      max-width: 420px;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: modalUp 0.2s ease-out;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    @keyframes modalUp {
+      from { transform: translateY(15px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .modal-title {
+      font-size: 17px;
+      font-weight: 800;
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: var(--pickle-text-tertiary);
+      cursor: pointer;
+    }
+    .modal-body {
+      font-size: 13px;
+      color: var(--pickle-text-secondary);
+      line-height: 1.5;
+    }
+    .modal-roulette-box {
+      background: #F8F9FA;
+      border: 2px dashed #E5E8EB;
+      border-radius: 12px;
+      padding: 20px 14px;
+      text-align: center;
+      margin: 14px 0;
+    }
+    .roulette-result-name {
+      font-size: 19px;
+      font-weight: 800;
+      color: #E03E3E;
+      margin-bottom: 3px;
+    }
+    .roulette-result-sub {
+      font-size: 12px;
+      color: #4E5968;
+    }
+    .spin-btn {
+      width: 100%;
+      height: 44px;
+      background: #E03E3E;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <div class="header-top">
+        <div class="brand">
+          <span class="brand-icon">🍱</span>
+          <div>
+            <span class="brand-title">한식뷔페 다시갈지도</span>
+            <span class="brand-badge">식단 상태 투명 표기</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="action-btn" id="rouletteBtn">🎲 점심 룰렛</button>
+          <button class="action-btn" id="favFilterBtn">⭐ 찜 <span id="favCount">0</span></button>
+        </div>
+      </div>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="searchInput" placeholder="식당명, 빌딩명, 라면, 제육 등 검색...">
+        <button class="clear-search" id="clearSearchBtn">✕</button>
+      </div>
+    </header>
+
+    <!-- Date & Realtime Live Status Banner -->
+    <div class="today-live-bar">
+      <div class="today-date-text">
+        <span>📅</span>
+        <span id="currentDateStr">2026년 11월 12일 (목)</span>
+      </div>
+      <div class="live-time-indicator" id="liveTimeIndicator">실시간 영업현황 반영중</div>
+    </div>
+
+    <!-- Visual Interactive Area Map -->
+    <div class="map-toggle-bar">
+      <div style="font-size:12px; font-weight:700; color:#4E5968;">🗺️ 거점 블록 바로가기</div>
+      <button class="map-toggle-btn" id="toggleMapBtn">지도 접기 ▴</button>
+    </div>
+    <div class="interactive-map-box" id="mapBox">
+      <div class="map-svg-container">
+        <div class="map-cluster-title">
+          <span>🚇 지하철역 & 주요 지산 블록</span>
+          <span style="font-size:10px; color:#8B95A1;">터치 시 해당 구역 필터링</span>
+        </div>
+        <div class="cluster-pins">
+          <button class="cluster-pin" onclick="filterByCluster('가산', '에이스')">📍 가디역·에이스타운 (7곳)</button>
+          <button class="cluster-pin" onclick="filterByCluster('가산', '대륭')">📍 가산·대륭타운 (4곳)</button>
+          <button class="cluster-pin" onclick="filterByCluster('가산', '어반워크')">📍 가산·어반워크/현대 (3곳)</button>
+          <button class="cluster-pin" onclick="filterByCluster('구로', '대륭포스트')">📍 구디역·대륭포스트 (4곳)</button>
+          <button class="cluster-pin" onclick="filterByCluster('구로', '코오롱')">📍 구디·코오롱밸리 (2곳)</button>
+          <button class="cluster-pin" onclick="filterByCluster('구로', '에이스')">📍 구디·에이스테크노 (3곳)</button>
+          <button class="cluster-pin" onclick="filterByCluster('광명', 'GIDC')">📍 광명역·GIDC단지 (4곳)</button>
+          <button class="cluster-pin" onclick="filterByCluster('광명', '소하')">📍 광명·소하/하안지산 (4곳)</button>
+          <button class="cluster-pin" onclick="filterByCluster('광명', 'M클러스터')">📍 광명·M클러스터/자이 (2곳)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <div class="region-tabs" id="regionTabs">
+        <button class="region-tab active" data-region="전체">전체 (52)</button>
+        <button class="region-tab" data-region="가산디지털단지">가산 (24)</button>
+        <button class="region-tab" data-region="구로디지털단지">구로 (16)</button>
+        <button class="region-tab" data-region="광명시">광명 (12)</button>
+      </div>
+      <div class="tag-chips" id="tagChips">
+        <button class="tag-chip" data-tag="라면기계">🍜 한강라면</button>
+        <button class="tag-chip" data-tag="탄산음료">🥤 탄산음료</button>
+        <button class="tag-chip" data-tag="계란후라이">🍳 계란후라이</button>
+        <button class="tag-chip" data-tag="고기특식">🍖 고기특식</button>
+        <button class="tag-chip" data-tag="지상층">🏢 지상층</button>
+        <button class="tag-chip" data-tag="디저트후식">🍧 후식/디저트</button>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div>검색 결과 <strong id="matchCount">52</strong>곳 (실제 식단 14곳 · 샘플 38곳)</div>
+      <div class="savings-badge">💰 한 끼 4,420원 절약!</div>
+    </div>
+
+    <div class="card-list" id="cardList"></div>
+  </div>
+
+  <!-- Roulette Modal -->
+  <div class="modal-overlay" id="rouletteModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">🎲 오늘 점심 뭐 먹지?</div>
+        <button class="close-btn" onclick="closeRouletteModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        현재 선택된 지역(<strong id="rouletteRegionName">전체</strong>)에서 딱 하나 골라드립니다!
+        <div class="modal-roulette-box" id="rouletteBox">
+          <div class="roulette-result-name" id="rouletteName">룰렛을 돌려보세요!</div>
+          <div class="roulette-result-sub" id="rouletteSub">7,000~8,000원대 알짜 식당 추천</div>
+        </div>
+        <button class="spin-btn" id="spinActionBtn" onclick="runSpin()">룰렛 돌리기 🎯</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Modal -->
+  <div class="modal-overlay" id="infoModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="infoModalTitle">식당 정보</div>
+        <button class="close-btn" onclick="closeInfoModal()">✕</button>
+      </div>
+      <div class="modal-body" id="infoModalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    const RAW_PLACES = [{"id": 1, "region": "가산디지털단지", "name": "봄봄 가산디지털단지점", "building": "에이스비즈포레 1층 106~111호", "address": "서울 금천구 가산디지털2로 173", "price": 9000, "feature": "1층 위치 대형 프리미엄 한식뷔페, 쾌적하고 세련된 화이트톤 매장", "channel": "네이버 플레이스 / 인스타", "status": "검증완료", "note": "가디역 8번 출구 도보권", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "봄봄 가산디지털단지점", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EB%B4%84%EB%B4%84%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B8%EB%8B%A8%EC%A7%80%EC%A0%90", "kakao_map": "https://map.kakao.com/link/search/%EB%B4%84%EB%B4%84%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B8%EB%8B%A8%EC%A7%80%EC%A0%90", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B82%EB%A1%9C%20173", "menu": {"main": "순살 돼지갈비찜 & 코다리조림", "soup": "황태해장국", "sides": "들기름막국수, 두부김치, 떡볶이", "special": "국물떡볶이 & 사과잼 토스트"}, "menu_type": "real", "hours": "월~토 11:00~15:00 (일 휴무)", "closed_rule": "매주 일요일 정기휴무 (토요일 정상영업)", "has_dinner": false, "open_saturday": true}, {"id": 2, "region": "가산디지털단지", "name": "담온 (구 푸드스케치)", "building": "에이스테크노타워 10차 지하 1층", "address": "서울 금천구 가산디지털1로 196", "price": 7500, "feature": "탄산음료 디스펜서, 중식/고기 특식 최강, 가디 직장인 원탑 성지", "channel": "카카오톡 채널 / 네이버", "status": "검증완료", "note": "수요일 특식 데이 추천", "tags": ["탄산음료", "지상층", "고기특식"], "upvotes": 0, "downvotes": 0, "map_query": "가산 담온", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EB%8B%B4%EC%98%A8", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EB%8B%B4%EC%98%A8", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B81%EB%A1%9C%20196", "menu": {"main": "순살양념치킨 & 탕수육", "soup": "해물짬뽕국", "sides": "김치제육볶음, 짜장면, 군만두", "special": "탄산음료 무제한 디스펜서"}, "menu_type": "real", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 3, "region": "가산디지털단지", "name": "아이밀", "building": "현대테라타워 가산DK 지하 1층", "address": "서울 금천구 가산디지털2로 144", "price": 7500, "feature": "셀프 한강라면 무료, 자극적이지 않은 집밥 스타일, 둥글레차 후식", "channel": "카카오 오픈채팅", "status": "검증완료", "note": "늦게 가면 메인 소진 주의", "tags": ["라면기계", "지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 아이밀", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EC%95%84%EC%9D%B4%EB%B0%80", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EC%95%84%EC%9D%B4%EB%B0%80", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B82%EB%A1%9C%20144", "menu": {"main": "매콤 돼지불고기 & 동그랑땡", "soup": "얼큰 순두부찌개", "sides": "궁중잡채, 어묵볶음, 흑미밥", "special": "셀프 한강라면 무료 & 둥글레차"}, "menu_type": "real", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 4, "region": "가산디지털단지", "name": "다시봄", "building": "가산어반워크 2층", "address": "서울 금천구 가산디지털2로 135", "price": 8000, "feature": "신축 지산 2층 지상 채광 뷰, 넓은 샐러드바, 프리미엄 식단", "channel": "카카오톡 채널", "status": "검증완료", "note": "쾌적한 인테리어", "tags": ["샐러드바", "지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 다시봄", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EB%8B%A4%EC%8B%9C%EB%B4%84", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EB%8B%A4%EC%8B%9C%EB%B4%84", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B82%EB%A1%9C%20135", "menu": {"main": "수제 등심돈까스 & 떡갈비조림", "soup": "진한 양송이스프 & 장국", "sides": "스파게티, 모닝빵&딸기잼, 단무지무침", "special": "경양식 특식 데이"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 5, "region": "가산디지털단지", "name": "밥(온)", "building": "가산어반워크2 2층", "address": "서울 금천구 가산디지털2로 143", "price": 8000, "feature": "매일 반찬 8종 이상, 정갈한 조리, 지상층 쾌적한 식사", "channel": "카카오톡 채널", "status": "검증완료", "note": "어반워크 직장인 밀집", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 밥온", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EB%B0%A5%EC%98%A8", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EB%B0%A5%EC%98%A8", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B82%EB%A1%9C%20143", "menu": {"main": "오삼불고기 & 계란말이", "soup": "시원한 북어해장국", "sides": "무생채, 비엔나소시지조림, 상추쌈", "special": "라면 셀프바 운영"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 6, "region": "가산디지털단지", "name": "라온푸드", "building": "가산비즈니스센터 지하 1층", "address": "서울 금천구 가산디지털1로 165", "price": 7500, "feature": "가산디지털단지역 인접, 중식/석식 운영, 식권 대량 할인", "channel": "카카오톡 채널", "status": "검증완료", "note": "회전율 빠름", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 라온푸드", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EB%9D%BC%EC%98%A8%ED%91%B8%EB%93%9C", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EB%9D%BC%EC%98%A8%ED%91%B8%EB%93%9C", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B81%EB%A1%9C%20165", "menu": {"main": "묵은지 등갈비찜 & 두부김치", "soup": "맑은 콩나물국", "sides": "동태전, 연근조림, 열무김치", "special": "매실차 & 둥글레차"}, "menu_type": "sample", "hours": "평일 11:20~14:00 / 17:30~19:30", "closed_rule": "매주 토·일요일 휴무 (석식 운영)", "has_dinner": true, "open_saturday": false}, {"id": 7, "region": "가산디지털단지", "name": "마이푸드", "building": "벽산디지털밸리 5차 지하 1층", "address": "서울 금천구 벚꽃로 244", "price": 7500, "feature": "가디역 도보 3분 역세권, 가성비 집밥 찬류 우수", "channel": "카카오톡 채널", "status": "검증완료", "note": "단골 직장인 다수", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 마이푸드", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EB%A7%88%EC%9D%B4%ED%91%B8%EB%93%9C", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EB%A7%88%EC%9D%B4%ED%91%B8%EB%93%9C", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EB%B2%9A%EA%BD%83%EB%A1%9C%20244", "menu": {"main": "버섯 소불고기 & 생선가스", "soup": "맑은 소고기무국", "sides": "오징어초무침, 감자채볶음, 겉절이", "special": "탄산음료 & 후식 누룽지"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 8, "region": "가산디지털단지", "name": "대성푸드빌", "building": "대성디폴리스 지하 1층", "address": "서울 금천구 서부샛길 606", "price": 7500, "feature": "초대형 지산 단지 구내식당, 매일 2개 코스(한식/양식) 선택형", "channel": "네이버 플레이스", "status": "검증완료", "note": "규모 매우 큼", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 대성푸드빌", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EB%8C%80%EC%84%B1%ED%91%B8%EB%93%9C%EB%B9%8C", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EB%8C%80%EC%84%B1%ED%91%B8%EB%93%9C%EB%B9%8C", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EC%84%9C%EB%B6%80%EC%83%9B%EA%B8%B8%20606", "menu": {"main": "매콤 춘천닭갈비 & 군만두", "soup": "칼칼 어묵탕", "sides": "청포묵무침, 콩나물무침, 양배추샐러드", "special": "셀프 토스트 코너"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 9, "region": "가산디지털단지", "name": "더소울푸드", "building": "우림라이온스밸리 B동 지하 1층", "address": "서울 금천구 가산디지털1로 168", "price": 7500, "feature": "가디역 6번 출구 건물 직결, 접근성 최강, 빠른 배식", "channel": "카카오톡 채널", "status": "검증완료", "note": "비 오는 날 접근 최고", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 더소울푸드", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EB%8D%94%EC%86%8C%EC%9A%B8%ED%91%B8%EB%93%9C", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EB%8D%94%EC%86%8C%EC%9A%B8%ED%91%B8%EB%93%9C", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B81%EB%A1%9C%20168", "menu": {"main": "안동 간장찜닭 & 동그랑땡", "soup": "얼큰 순두부찌개", "sides": "도토리묵야채무침, 미역줄기볶음, 깍두기", "special": "식혜 디저트 제공"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 10, "region": "가산디지털단지", "name": "미가stx", "building": "STX V-TOWER 지하 1층", "address": "서울 금천구 가산디지털1로 128", "price": 7500, "feature": "셀프 라면 코너, 토스트바, 식혜/매실차 디저트", "channel": "카카오톡 채널", "status": "검증완료", "note": "다양한 사이드", "tags": ["라면기계", "지상층", "디저트후식"], "upvotes": 0, "downvotes": 0, "map_query": "가산 미가stx", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EB%AF%B8%EA%B0%80stx", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EB%AF%B8%EA%B0%80stx", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B81%EB%A1%9C%20128", "menu": {"main": "한방 돼지갈비찜 & 해물파전", "soup": "구수한 된장찌개", "sides": "궁중잡채, 취나물볶음, 포기김치", "special": "후식 숭늉 완비"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 11, "region": "가산디지털단지", "name": "미가푸드빌 대륭19차", "building": "대륭테크노타운 19차 지하 1층", "address": "서울 금천구 가산디지털2로 70", "price": 7500, "feature": "고기 반찬 2종 기본 구비, 넓은 좌석 수용", "channel": "카카오톡 채널", "status": "검증완료", "note": "육류파 추천", "tags": ["지상층", "고기특식"], "upvotes": 0, "downvotes": 0, "map_query": "가산 미가푸드빌 대륭19차", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EB%AF%B8%EA%B0%80%ED%91%B8%EB%93%9C%EB%B9%8C%20%EB%8C%80%EB%A5%AD19%EC%B0%A8", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EB%AF%B8%EA%B0%80%ED%91%B8%EB%93%9C%EB%B9%8C%20%EB%8C%80%EB%A5%AD19%EC%B0%A8", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B82%EB%A1%9C%2070", "menu": {"main": "수제 등심돈까스 & 떡갈비조림", "soup": "진한 양송이스프 & 장국", "sides": "스파게티, 모닝빵&딸기잼, 단무지무침", "special": "경양식 특식 데이"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 12, "region": "가산디지털단지", "name": "미가푸드빌 에이스8차", "building": "에이스하이엔드타워 8차 지하 1층", "address": "서울 금천구 가산디지털1로 84", "price": 7500, "feature": "계란후라이 셀프바, 깔끔한 반찬 구성", "channel": "카카오톡 채널", "status": "검증완료", "note": "후라이 직접 조리", "tags": ["계란후라이", "지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 미가푸드빌 에이스8차", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EB%AF%B8%EA%B0%80%ED%91%B8%EB%93%9C%EB%B9%8C%20%EC%97%90%EC%9D%B4%EC%8A%A48%EC%B0%A8", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EB%AF%B8%EA%B0%80%ED%91%B8%EB%93%9C%EB%B9%8C%20%EC%97%90%EC%9D%B4%EC%8A%A48%EC%B0%A8", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B81%EB%A1%9C%2084", "menu": {"main": "오삼불고기 & 계란말이", "soup": "시원한 북어해장국", "sides": "무생채, 비엔나소시지조림, 상추쌈", "special": "라면 셀프바 운영"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 13, "region": "가산디지털단지", "name": "바른식탁", "building": "BYC하이시티 지하 1층", "address": "서울 금천구 가산디지털1로 131", "price": 8000, "feature": "대형 빌딩 구내식당, 신선한 샐러드바 특화", "channel": "카카오톡 채널", "status": "검증완료", "note": "식단 균형 우수", "tags": ["샐러드바", "지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 바른식탁", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EB%B0%94%EB%A5%B8%EC%8B%9D%ED%83%81", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EB%B0%94%EB%A5%B8%EC%8B%9D%ED%83%81", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B81%EB%A1%9C%20131", "menu": {"main": "묵은지 등갈비찜 & 두부김치", "soup": "맑은 콩나물국", "sides": "동태전, 연근조림, 열무김치", "special": "매실차 & 둥글레차"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 14, "region": "가산디지털단지", "name": "그래도 집밥", "building": "이앤씨드림타워 7차 지하 1층", "address": "서울 금천구 디지털로9길 46", "price": 7500, "feature": "화학조미료 최소화 집밥 스타일, 영양사 정성 식단", "channel": "카카오톡 채널", "status": "검증완료", "note": "속 편한 점심", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 그래도 집밥", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EA%B7%B8%EB%9E%98%EB%8F%84%20%EC%A7%91%EB%B0%A5", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EA%B7%B8%EB%9E%98%EB%8F%84%20%EC%A7%91%EB%B0%A5", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C9%EA%B8%B8%2046", "menu": {"main": "버섯 소불고기 & 생선가스", "soup": "맑은 소고기무국", "sides": "오징어초무침, 감자채볶음, 겉절이", "special": "탄산음료 & 후식 누룽지"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 15, "region": "가산디지털단지", "name": "스타밸리푸드포유", "building": "스타밸리 지하 1층", "address": "서울 금천구 디지털로9길 99", "price": 7000, "feature": "가디역 도보 2분 초역세권, 저렴한 가격 7,000원", "channel": "카카오톡 채널", "status": "검증완료", "note": "가성비 뛰어남", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 스타밸리푸드포유", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EC%8A%A4%ED%83%80%EB%B0%B8%EB%A6%AC%ED%91%B8%EB%93%9C%ED%8F%AC%EC%9C%A0", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EC%8A%A4%ED%83%80%EB%B0%B8%EB%A6%AC%ED%91%B8%EB%93%9C%ED%8F%AC%EC%9C%A0", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C9%EA%B8%B8%2099", "menu": {"main": "매콤 춘천닭갈비 & 군만두", "soup": "칼칼 어묵탕", "sides": "청포묵무침, 콩나물무침, 양배추샐러드", "special": "셀프 토스트 코너"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 16, "region": "가산디지털단지", "name": "씽씽푸드", "building": "대륭테크노타운 22차 1층", "address": "서울 금천구 가산디지털1로 146", "price": 7500, "feature": "지상 1층 위치 쾌적함, 푸짐한 양 배식", "channel": "카카오톡 채널", "status": "검증완료", "note": "지하 답답한 분 추천", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 씽씽푸드", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EC%94%BD%EC%94%BD%ED%91%B8%EB%93%9C", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EC%94%BD%EC%94%BD%ED%91%B8%EB%93%9C", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B81%EB%A1%9C%20146", "menu": {"main": "안동 간장찜닭 & 동그랑땡", "soup": "얼큰 순두부찌개", "sides": "도토리묵야채무침, 미역줄기볶음, 깍두기", "special": "식혜 디저트 제공"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 17, "region": "가산디지털단지", "name": "쿠킹스토리", "building": "대륭포스트타워 5차 지하 1층", "address": "서울 금천구 디지털로9길 68", "price": 7500, "feature": "포스트타워5차 메인 뷔페, 카레/짜장 특식 인기", "channel": "카카오톡 채널", "status": "검증완료", "note": "맞은편 쿡플러스와 경쟁", "tags": ["지상층", "고기특식"], "upvotes": 0, "downvotes": 0, "map_query": "가산 쿠킹스토리", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EC%BF%A0%ED%82%B9%EC%8A%A4%ED%86%A0%EB%A6%AC", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EC%BF%A0%ED%82%B9%EC%8A%A4%ED%86%A0%EB%A6%AC", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C9%EA%B8%B8%2068", "menu": {"main": "한방 돼지갈비찜 & 해물파전", "soup": "구수한 된장찌개", "sides": "궁중잡채, 취나물볶음, 포기김치", "special": "후식 숭늉 완비"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 18, "region": "가산디지털단지", "name": "쿡플러스", "building": "대륭포스트타워 5차 지하 1층", "address": "서울 금천구 디지털로9길 68", "price": 7500, "feature": "라면바 구비, 매일 2개 메인 육류 제공", "channel": "카카오톡 채널", "status": "검증완료", "note": "메뉴 비교 후 선택 가능", "tags": ["라면기계", "지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 쿡플러스", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EC%BF%A1%ED%94%8C%EB%9F%AC%EC%8A%A4", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EC%BF%A1%ED%94%8C%EB%9F%AC%EC%8A%A4", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C9%EA%B8%B8%2068", "menu": {"main": "수제 등심돈까스 & 떡갈비조림", "soup": "진한 양송이스프 & 장국", "sides": "스파게티, 모닝빵&딸기잼, 단무지무침", "special": "경양식 특식 데이"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 19, "region": "가산디지털단지", "name": "퍼블릭가산 구내식당", "building": "퍼블릭가산 C동 3층", "address": "서울 금천구 디지털로 178", "price": 8500, "feature": "가산 최대 복합단지 신축 식당, 채광 좋은 통창 뷰", "channel": "네이버 플레이스", "status": "검증완료", "note": "쾌적성 최고", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "퍼블릭가산 구내식당", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%ED%8D%BC%EB%B8%94%EB%A6%AD%EA%B0%80%EC%82%B0%20%EA%B5%AC%EB%82%B4%EC%8B%9D%EB%8B%B9", "kakao_map": "https://map.kakao.com/link/search/%ED%8D%BC%EB%B8%94%EB%A6%AD%EA%B0%80%EC%82%B0%20%EA%B5%AC%EB%82%B4%EC%8B%9D%EB%8B%B9", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C%20178", "menu": {"main": "오삼불고기 & 계란말이", "soup": "시원한 북어해장국", "sides": "무생채, 비엔나소시지조림, 상추쌈", "special": "라면 셀프바 운영"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 20, "region": "가산디지털단지", "name": "윤스푸드", "building": "에이스하이엔드타워 3차 지하 1층", "address": "서울 금천구 가산디지털1로 145", "price": 7000, "feature": "7,000원 초가성비, 깔끔한 밑반찬 구성", "channel": "카카오톡 채널", "status": "검증완료", "note": "동선 효율 굳", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 윤스푸드", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EC%9C%A4%EC%8A%A4%ED%91%B8%EB%93%9C", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EC%9C%A4%EC%8A%A4%ED%91%B8%EB%93%9C", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B81%EB%A1%9C%20145", "menu": {"main": "묵은지 등갈비찜 & 두부김치", "soup": "맑은 콩나물국", "sides": "동태전, 연근조림, 열무김치", "special": "매실차 & 둥글레차"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 21, "region": "가산디지털단지", "name": "돈토", "building": "에이스하이엔드타워 3차 지하 1층", "address": "서울 금천구 가산디지털1로 145", "price": 7500, "feature": "고기 위주 푸짐한 구성, 옛날통닭 치킨 데이 인기", "channel": "카카오톡 채널", "status": "검증완료", "note": "고기 러버 추천", "tags": ["지상층", "고기특식"], "upvotes": 0, "downvotes": 0, "map_query": "가산 돈토", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EB%8F%88%ED%86%A0", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EB%8F%88%ED%86%A0", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B81%EB%A1%9C%20145", "menu": {"main": "버섯 소불고기 & 생선가스", "soup": "맑은 소고기무국", "sides": "오징어초무침, 감자채볶음, 겉절이", "special": "탄산음료 & 후식 누룽지"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 22, "region": "가산디지털단지", "name": "온정찬 구내식당", "building": "하우스디와이즈 1층", "address": "서울 금천구 가산디지털1로 75-15", "price": 7500, "feature": "6칸 특수 식판, 한강라면 무료, 꼬치어묵탕 및 냉매실차 구비", "channel": "네이버 플레이스", "status": "검증완료", "note": "식권 외부 키오스크", "tags": ["라면기계", "지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 온정찬 구내식당", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EC%98%A8%EC%A0%95%EC%B0%AC%20%EA%B5%AC%EB%82%B4%EC%8B%9D%EB%8B%B9", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EC%98%A8%EC%A0%95%EC%B0%AC%20%EA%B5%AC%EB%82%B4%EC%8B%9D%EB%8B%B9", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EA%B0%80%EC%82%B0%EB%94%94%EC%A7%80%ED%84%B81%EB%A1%9C%2075-15", "menu": {"main": "바싹 돼지불고기 & 계란찜", "soup": "얼큰 소고기장터국", "sides": "비엔나소시지야채볶음, 청포묵, 겉절이", "special": "6칸 식판 & 꼬치어묵탕 & 한강라면"}, "menu_type": "real", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 23, "region": "가산디지털단지", "name": "윤쉐프갤러리", "building": "에이스가산타워 지하 1층 B110호", "address": "서울 금천구 디지털로 121", "price": 7500, "feature": "직장인 입소문 탄 알짜 식단, 카톡 채널 메뉴 확인 가능", "channel": "카카오톡 채널", "status": "검증완료", "note": "반찬 퀄리티 호평", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "가산 윤쉐프갤러리", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EC%9C%A4%EC%89%90%ED%94%84%EA%B0%A4%EB%9F%AC%EB%A6%AC", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EC%9C%A4%EC%89%90%ED%94%84%EA%B0%A4%EB%9F%AC%EB%A6%AC", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C%20121", "menu": {"main": "안동 간장찜닭 & 동그랑땡", "soup": "얼큰 순두부찌개", "sides": "도토리묵야채무침, 미역줄기볶음, 깍두기", "special": "식혜 디저트 제공"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 24, "region": "가산디지털단지", "name": "도원 (중식런치뷔페)", "building": "디지털엠파이어 빌딩", "address": "서울 금천구 범안로 1130", "price": 9900, "feature": "점심 한정 중화요리 뷔페(탕수육, 깐풍기, 짬뽕/짜장 무한리필)", "channel": "네이버 플레이스", "status": "검증완료", "note": "독산역 인근 중식 성지", "tags": [], "upvotes": 0, "downvotes": 0, "map_query": "가산 도원", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B0%80%EC%82%B0%20%EB%8F%84%EC%9B%90", "kakao_map": "https://map.kakao.com/link/search/%EA%B0%80%EC%82%B0%20%EB%8F%84%EC%9B%90", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B8%88%EC%B2%9C%EA%B5%AC%20%EB%B2%94%EC%95%88%EB%A1%9C%201130", "menu": {"main": "바삭 찹쌀탕수육 & 깐풍기", "soup": "얼큰 해물짬뽕국물", "sides": "유산슬, 고추잡채&꽃빵, 짜장소스", "special": "점심 한정 중화요리 뷔페 무한리필"}, "menu_type": "real", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 25, "region": "구로디지털단지", "name": "봄봄 구로디지털단지점", "building": "에이스테크노타워 8차 지하 1층", "address": "서울 구로구 디지털로33길 11", "price": 9000, "feature": "화이트톤 프리미엄 뷔페, 순살갈비찜/떡볶이/토스트/탄산음료 구비", "channel": "인스타 @bombom_guro", "status": "검증완료", "note": "식권 100장 장당 7,800원", "tags": ["탄산음료", "지상층", "고기특식", "디저트후식"], "upvotes": 0, "downvotes": 0, "map_query": "봄봄 구로디지털단지점", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EB%B4%84%EB%B4%84%20%EA%B5%AC%EB%A1%9C%EB%94%94%EC%A7%80%ED%84%B8%EB%8B%A8%EC%A7%80%EC%A0%90", "kakao_map": "https://map.kakao.com/link/search/%EB%B4%84%EB%B4%84%20%EA%B5%AC%EB%A1%9C%EB%94%94%EC%A7%80%ED%84%B8%EB%8B%A8%EC%A7%80%EC%A0%90", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C33%EA%B8%B8%2011", "menu": {"main": "순살 돼지갈비찜 & 코다리조림", "soup": "황태해장국", "sides": "들기름막국수, 햄계란볶음밥, 떡볶이", "special": "토스트기 & 탄산음료 디스펜서"}, "menu_type": "real", "hours": "월~토 11:00~15:00 (일 휴무)", "closed_rule": "매주 일요일 정기휴무 (토요일 정상영업)", "has_dinner": false, "open_saturday": true}, {"id": 26, "region": "구로디지털단지", "name": "케이제이푸드", "building": "대륭포스트타워 8차 지하 1층", "address": "서울 구로구 디지털로26길 43", "price": 7500, "feature": "지타워(넷마블) 앞, 한강라면 셀프기계, 미숫가루/탄산음료 무제한", "channel": "식당 입구 게시", "status": "검증완료", "note": "식권 10장 장당 7,000원", "tags": ["라면기계", "탄산음료", "지상층"], "upvotes": 0, "downvotes": 0, "map_query": "구로 케이제이푸드", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B5%AC%EB%A1%9C%20%EC%BC%80%EC%9D%B4%EC%A0%9C%EC%9D%B4%ED%91%B8%EB%93%9C", "kakao_map": "https://map.kakao.com/link/search/%EA%B5%AC%EB%A1%9C%20%EC%BC%80%EC%9D%B4%EC%A0%9C%EC%9D%B4%ED%91%B8%EB%93%9C", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C26%EA%B8%B8%2043", "menu": {"main": "수제 옛날통닭 & 돈육채소볶음", "soup": "콩나물김칫국", "sides": "토루케루 카레, 볶음짬뽕, 무쌈말이", "special": "셀프 한강라면 기계 & 옛날 미숫가루"}, "menu_type": "real", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 27, "region": "구로디지털단지", "name": "알찬푸드", "building": "대륭포스트타워 7차 지하 1층 B101호", "address": "서울 구로구 디지털로33길 48", "price": 7500, "feature": "제육볶음/닭볶음탕 등 집밥 손맛 우수, 구디 중심가 대형 매장", "channel": "카카오톡 채널", "status": "검증완료", "note": "직장인 점심 성지", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "구로 알찬푸드", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B5%AC%EB%A1%9C%20%EC%95%8C%EC%B0%AC%ED%91%B8%EB%93%9C", "kakao_map": "https://map.kakao.com/link/search/%EA%B5%AC%EB%A1%9C%20%EC%95%8C%EC%B0%AC%ED%91%B8%EB%93%9C", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C33%EA%B8%B8%2048", "menu": {"main": "묵은지 등갈비찜 & 두부김치", "soup": "맑은 콩나물국", "sides": "동태전, 연근조림, 열무김치", "special": "매실차 & 둥글레차"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 28, "region": "구로디지털단지", "name": "봄푸드", "building": "구로 지하이시티 지하 1층 B114호", "address": "서울 구로구 디지털로 243", "price": 7000, "feature": "중식/석식 둘 다 운영, 토스트 코너, 탄산음료 디스펜서", "channel": "카카오톡 채널", "status": "검증완료", "note": "키오스크 식권 구매", "tags": ["탄산음료", "지상층", "디저트후식"], "upvotes": 0, "downvotes": 0, "map_query": "구로 봄푸드", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B5%AC%EB%A1%9C%20%EB%B4%84%ED%91%B8%EB%93%9C", "kakao_map": "https://map.kakao.com/link/search/%EA%B5%AC%EB%A1%9C%20%EB%B4%84%ED%91%B8%EB%93%9C", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C%20243", "menu": {"main": "버섯 소불고기 & 생선가스", "soup": "맑은 소고기무국", "sides": "오징어초무침, 감자채볶음, 겉절이", "special": "탄산음료 & 후식 누룽지"}, "menu_type": "sample", "hours": "평일 11:20~14:00 / 17:30~19:30", "closed_rule": "매주 토·일요일 휴무 (석식 운영)", "has_dinner": true, "open_saturday": false}, {"id": 29, "region": "구로디지털단지", "name": "윤쉐프 코오롱", "building": "코오롱싸이언스밸리 1차 지하 1층 B102호", "address": "서울 구로구 디지털로34길 43", "price": 7500, "feature": "라면/토스트/아이스크림/음료 셀프바 무제한, 보쌈 데이 강력 추천", "channel": "카카오톡 채널", "status": "검증완료", "note": "구디 전통 강자", "tags": ["라면기계", "탄산음료", "지상층", "고기특식", "디저트후식"], "upvotes": 0, "downvotes": 0, "map_query": "구로 윤쉐프 코오롱", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B5%AC%EB%A1%9C%20%EC%9C%A4%EC%89%90%ED%94%84%20%EC%BD%94%EC%98%A4%EB%A1%B1", "kakao_map": "https://map.kakao.com/link/search/%EA%B5%AC%EB%A1%9C%20%EC%9C%A4%EC%89%90%ED%94%84%20%EC%BD%94%EC%98%A4%EB%A1%B1", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C34%EA%B8%B8%2043", "menu": {"main": "보쌈수육 & 무말랭이보쌈김치", "soup": "시골 배추된장국", "sides": "비빔막국수, 해물동그랑땡, 쌈채소", "special": "라면/토스트/아이스크림 셀프바"}, "menu_type": "real", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 30, "region": "구로디지털단지", "name": "코오롱빌란트2차 구내식당", "building": "코오롱디지털타워빌란트 2차 지하 1층", "address": "서울 구로구 디지털로30길 31", "price": 7500, "feature": "조리 퀄리티 우수, 간장보쌈/데리야끼비빔국수 등 창의적 메뉴", "channel": "네이버 플레이스", "status": "검증완료", "note": "맛 만족도 상위권", "tags": ["지상층", "고기특식"], "upvotes": 0, "downvotes": 0, "map_query": "구로 코오롱빌란트2차 구내식당", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B5%AC%EB%A1%9C%20%EC%BD%94%EC%98%A4%EB%A1%B1%EB%B9%8C%EB%9E%80%ED%8A%B82%EC%B0%A8%20%EA%B5%AC%EB%82%B4%EC%8B%9D%EB%8B%B9", "kakao_map": "https://map.kakao.com/link/search/%EA%B5%AC%EB%A1%9C%20%EC%BD%94%EC%98%A4%EB%A1%B1%EB%B9%8C%EB%9E%80%ED%8A%B82%EC%B0%A8%20%EA%B5%AC%EB%82%B4%EC%8B%9D%EB%8B%B9", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C30%EA%B8%B8%2031", "menu": {"main": "안동 간장찜닭 & 동그랑땡", "soup": "얼큰 순두부찌개", "sides": "도토리묵야채무침, 미역줄기볶음, 깍두기", "special": "식혜 디저트 제공"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 31, "region": "구로디지털단지", "name": "행복한 한식뷔페", "building": "에이스테크노타워 3차 지하 1층", "address": "서울 구로구 디지털로29길 38", "price": 7000, "feature": "라면 셀프 코너, 신선한 브로콜리/채소류, 간이 자극적이지 않음", "channel": "카카오톡 채널", "status": "검증완료", "note": "남구로역 도보권", "tags": ["라면기계", "지상층"], "upvotes": 0, "downvotes": 0, "map_query": "구로 행복한 한식뷔페", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B5%AC%EB%A1%9C%20%ED%96%89%EB%B3%B5%ED%95%9C%20%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98", "kakao_map": "https://map.kakao.com/link/search/%EA%B5%AC%EB%A1%9C%20%ED%96%89%EB%B3%B5%ED%95%9C%20%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C29%EA%B8%B8%2038", "menu": {"main": "한방 돼지갈비찜 & 해물파전", "soup": "구수한 된장찌개", "sides": "궁중잡채, 취나물볶음, 포기김치", "special": "후식 숭늉 완비"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 32, "region": "구로디지털단지", "name": "바른음식정인 (정인21)", "building": "e스페이스 빌딩 지하 1층", "address": "서울 구로구 디지털로27길 36", "price": 7500, "feature": "계란후라이 셀프 조리대, 청국장/생선구이 등 깊은 집밥 손맛", "channel": "카카오톡 채널", "status": "검증완료", "note": "직접 부치는 계란후라이", "tags": ["계란후라이", "지상층"], "upvotes": 0, "downvotes": 0, "map_query": "구로 정인21", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B5%AC%EB%A1%9C%20%EC%A0%95%EC%9D%B821", "kakao_map": "https://map.kakao.com/link/search/%EA%B5%AC%EB%A1%9C%20%EC%A0%95%EC%9D%B821", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C27%EA%B8%B8%2036", "menu": {"main": "직화 고등어구이 & 제육볶음", "soup": "진한 우렁청국장찌개", "sides": "두부조림, 애호박나물, 열무김치", "special": "계란후라이 셀프 조리대"}, "menu_type": "real", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 33, "region": "구로디지털단지", "name": "한신IT타워 구내식당", "building": "한신IT타워 지하 1층", "address": "서울 구로구 디지털로 272", "price": 7000, "feature": "반찬 가짓수 역대 최다, 한식/중식/분식 혼합형, 현금 6,500원", "channel": "카카오톡 채널", "status": "검증완료", "note": "가성비 극강", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "구로 한신IT타워 구내식당", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B5%AC%EB%A1%9C%20%ED%95%9C%EC%8B%A0IT%ED%83%80%EC%9B%8C%20%EA%B5%AC%EB%82%B4%EC%8B%9D%EB%8B%B9", "kakao_map": "https://map.kakao.com/link/search/%EA%B5%AC%EB%A1%9C%20%ED%95%9C%EC%8B%A0IT%ED%83%80%EC%9B%8C%20%EA%B5%AC%EB%82%B4%EC%8B%9D%EB%8B%B9", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C%20272", "menu": {"main": "간장 돈불고기 & 탕수육", "soup": "얼큰 콩나물국", "sides": "짜장면, 떡볶이, 김말이튀김, 비엔나", "special": "반찬 가짓수 최다 보유"}, "menu_type": "real", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 34, "region": "구로디지털단지", "name": "런치투게더", "building": "벽산디지털밸리 1차 지하 1층", "address": "서울 구로구 디지털로30길 28", "price": 7000, "feature": "대형 매장, 바삭한 튀김류 및 해물순두부찌개 호평", "channel": "네이버 플레이스", "status": "검증완료", "note": "식사 공간 매우 넒음", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "구로 런치투게더", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B5%AC%EB%A1%9C%20%EB%9F%B0%EC%B9%98%ED%88%AC%EA%B2%8C%EB%8D%94", "kakao_map": "https://map.kakao.com/link/search/%EA%B5%AC%EB%A1%9C%20%EB%9F%B0%EC%B9%98%ED%88%AC%EA%B2%8C%EB%8D%94", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C30%EA%B8%B8%2028", "menu": {"main": "묵은지 등갈비찜 & 두부김치", "soup": "맑은 콩나물국", "sides": "동태전, 연근조림, 열무김치", "special": "매실차 & 둥글레차"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 35, "region": "구로디지털단지", "name": "유에프쉐프 (인쉐프)", "building": "이앤씨벤처드림타워 2차 지하 1층", "address": "서울 구로구 디지털로33길 55", "price": 7500, "feature": "7칸 전용 특수 식판, 라면 기계, 토스트, 냉모밀 국수 코너", "channel": "네이버 플레이스", "status": "검증완료", "note": "식판 분리감 훌륭", "tags": ["라면기계", "지상층", "디저트후식"], "upvotes": 0, "downvotes": 0, "map_query": "구로 유에프쉐프", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B5%AC%EB%A1%9C%20%EC%9C%A0%EC%97%90%ED%94%84%EC%89%90%ED%94%84", "kakao_map": "https://map.kakao.com/link/search/%EA%B5%AC%EB%A1%9C%20%EC%9C%A0%EC%97%90%ED%94%84%EC%89%90%ED%94%84", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C33%EA%B8%B8%2055", "menu": {"main": "버섯 소불고기 & 생선가스", "soup": "맑은 소고기무국", "sides": "오징어초무침, 감자채볶음, 겉절이", "special": "탄산음료 & 후식 누룽지"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 36, "region": "구로디지털단지", "name": "해피타임", "building": "대륭포스트타워 7차 지하 1층", "address": "서울 구로구 디지털로33길 48", "price": 7500, "feature": "식전 호박죽 및 냉모밀 서비스, 치킨까스/마파두부 특식 우수", "channel": "카카오톡 채널", "status": "검증완료", "note": "디저트 죽 제공", "tags": ["지상층", "고기특식"], "upvotes": 0, "downvotes": 0, "map_query": "구로 해피타임", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B5%AC%EB%A1%9C%20%ED%95%B4%ED%94%BC%ED%83%80%EC%9E%84", "kakao_map": "https://map.kakao.com/link/search/%EA%B5%AC%EB%A1%9C%20%ED%95%B4%ED%94%BC%ED%83%80%EC%9E%84", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C33%EA%B8%B8%2048", "menu": {"main": "매콤 춘천닭갈비 & 군만두", "soup": "칼칼 어묵탕", "sides": "청포묵무침, 콩나물무침, 양배추샐러드", "special": "셀프 토스트 코너"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 37, "region": "구로디지털단지", "name": "에이스 구내식당", "building": "에이스테크노타워 1차 지하 1층", "address": "서울 구로구 디지털로27길 24", "price": 7000, "feature": "정갈한 반찬, 메인 메뉴 정량 배식 후 사이드 자율 배식", "channel": "네이버 플레이스", "status": "검증완료", "note": "깔끔한 식사 분위기", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "구로 에이스 구내식당", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B5%AC%EB%A1%9C%20%EC%97%90%EC%9D%B4%EC%8A%A4%20%EA%B5%AC%EB%82%B4%EC%8B%9D%EB%8B%B9", "kakao_map": "https://map.kakao.com/link/search/%EA%B5%AC%EB%A1%9C%20%EC%97%90%EC%9D%B4%EC%8A%A4%20%EA%B5%AC%EB%82%B4%EC%8B%9D%EB%8B%B9", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C27%EA%B8%B8%2024", "menu": {"main": "안동 간장찜닭 & 동그랑땡", "soup": "얼큰 순두부찌개", "sides": "도토리묵야채무침, 미역줄기볶음, 깍두기", "special": "식혜 디저트 제공"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 38, "region": "구로디지털단지", "name": "마리오푸드", "building": "마리오타워 1층", "address": "서울 구로구 디지털로30길 28", "price": 7500, "feature": "지상 1층 채광 우수, 메인 육류 2종에 알찬 사이드 반찬", "channel": "네이버 플레이스", "status": "검증완료", "note": "쾌적한 1층 매장", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "구로 마리오푸드", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B5%AC%EB%A1%9C%20%EB%A7%88%EB%A6%AC%EC%98%A4%ED%91%B8%EB%93%9C", "kakao_map": "https://map.kakao.com/link/search/%EA%B5%AC%EB%A1%9C%20%EB%A7%88%EB%A6%AC%EC%98%A4%ED%91%B8%EB%93%9C", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C30%EA%B8%B8%2028", "menu": {"main": "한방 돼지갈비찜 & 해물파전", "soup": "구수한 된장찌개", "sides": "궁중잡채, 취나물볶음, 포기김치", "special": "후식 숭늉 완비"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 39, "region": "구로디지털단지", "name": "까사미아푸드", "building": "우림이비즈센터 1차 지하 1층", "address": "서울 구로구 디지털로33길 28", "price": 7500, "feature": "셀프 만두라면 코너 구비, 석식 운영", "channel": "네이버 플레이스", "status": "검증완료", "note": "저녁 식사 가능", "tags": ["라면기계", "지상층"], "upvotes": 0, "downvotes": 0, "map_query": "구로 까사미아푸드", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B5%AC%EB%A1%9C%20%EA%B9%8C%EC%82%AC%EB%AF%B8%EC%95%84%ED%91%B8%EB%93%9C", "kakao_map": "https://map.kakao.com/link/search/%EA%B5%AC%EB%A1%9C%20%EA%B9%8C%EC%82%AC%EB%AF%B8%EC%95%84%ED%91%B8%EB%93%9C", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C33%EA%B8%B8%2028", "menu": {"main": "수제 등심돈까스 & 떡갈비조림", "soup": "진한 양송이스프 & 장국", "sides": "스파게티, 모닝빵&딸기잼, 단무지무침", "special": "경양식 특식 데이"}, "menu_type": "sample", "hours": "평일 11:20~14:00 / 17:30~19:30", "closed_rule": "매주 토·일요일 휴무 (석식 운영)", "has_dinner": true, "open_saturday": false}, {"id": 40, "region": "구로디지털단지", "name": "에이치케이에이치에이치", "building": "이앤씨벤처드림타워 5차 지하 1층 B102호", "address": "서울 구로구 디지털로29길 38", "price": 7000, "feature": "보쌈 나오는 날 직장인 오픈런, 계란후라이 셀프바 구비", "channel": "카카오톡 채널", "status": "검증완료", "note": "남구로역 인접", "tags": ["계란후라이", "지상층", "고기특식"], "upvotes": 0, "downvotes": 0, "map_query": "구로 에이치케이에이치에이치", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B5%AC%EB%A1%9C%20%EC%97%90%EC%9D%B4%EC%B9%98%EC%BC%80%EC%9D%B4%EC%97%90%EC%9D%B4%EC%B9%98%EC%97%90%EC%9D%B4%EC%B9%98", "kakao_map": "https://map.kakao.com/link/search/%EA%B5%AC%EB%A1%9C%20%EC%97%90%EC%9D%B4%EC%B9%98%EC%BC%80%EC%9D%B4%EC%97%90%EC%9D%B4%EC%B9%98%EC%97%90%EC%9D%B4%EC%B9%98", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EC%84%9C%EC%9A%B8%20%EA%B5%AC%EB%A1%9C%EA%B5%AC%20%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C29%EA%B8%B8%2038", "menu": {"main": "오삼불고기 & 계란말이", "soup": "시원한 북어해장국", "sides": "무생채, 비엔나소시지조림, 상추쌈", "special": "라면 셀프바 운영"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 41, "region": "광명시", "name": "봄봄 광명역점", "building": "어반브릭스(유플래닛) B동 2층 228~234호", "address": "경기 광명시 양지로 19", "price": 9000, "feature": "AK플라자/어반브릭스 2층 위치, 짜지 않고 정갈한 프리미엄 뷔페", "channel": "네이버 플레이스", "status": "검증완료", "note": "일직동 직장인·주민 핫플", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "봄봄 광명역점", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EB%B4%84%EB%B4%84%20%EA%B4%91%EB%AA%85%EC%97%AD%EC%A0%90", "kakao_map": "https://map.kakao.com/link/search/%EB%B4%84%EB%B4%84%20%EA%B4%91%EB%AA%85%EC%97%AD%EC%A0%90", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B2%BD%EA%B8%B0%20%EA%B4%91%EB%AA%85%EC%8B%9C%20%EC%96%91%EC%A7%80%EB%A1%9C%2019", "menu": {"main": "춘천 닭갈비 & 생선가스", "soup": "소고기미역국", "sides": "나시고랭 볶음밥, 도토리묵, 계절나물", "special": "샐러드바 & 신선 야채쌈"}, "menu_type": "real", "hours": "월~토 11:00~15:00 (일 휴무)", "closed_rule": "매주 일요일 정기휴무 (토요일 정상영업)", "has_dinner": false, "open_saturday": true}, {"id": 42, "region": "광명시", "name": "정다운푸드 더조은한식뷔페", "building": "광명역 GIDC 지하 1층/1층", "address": "경기 광명시 일직로 43", "price": 7500, "feature": "라면 기계 종류별 무제한, GIDC 커뮤니티 카페에 전날 식단 공지", "channel": "네이버 GIDC 카페", "status": "검증완료", "note": "GIDC 대표 인기 식당", "tags": ["라면기계", "지상층"], "upvotes": 0, "downvotes": 0, "map_query": "광명 GIDC 더조은한식뷔페", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B4%91%EB%AA%85%20GIDC%20%EB%8D%94%EC%A1%B0%EC%9D%80%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98", "kakao_map": "https://map.kakao.com/link/search/%EA%B4%91%EB%AA%85%20GIDC%20%EB%8D%94%EC%A1%B0%EC%9D%80%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B2%BD%EA%B8%B0%20%EA%B4%91%EB%AA%85%EC%8B%9C%20%EC%9D%BC%EC%A7%81%EB%A1%9C%2043", "menu": {"main": "훈제오리 부추볶음 & 수제돈까스", "soup": "바지락된장찌개", "sides": "비빔국수, 떡갈비조림, 쌈야채", "special": "종류별 무제한 라면바 (진라면, 신라면)"}, "menu_type": "real", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 43, "region": "광명시", "name": "라온한식뷔페 광명GIDC점", "building": "광명역 GIDC 1층/2층", "address": "경기 광명시 일직로 43", "price": 8000, "feature": "더조은과 GIDC 양대산맥, 쾌적하고 널찍한 매장, 고기 반찬 충실", "channel": "네이버 플레이스", "status": "검증완료", "note": "좌석 수 매우 많음", "tags": ["지상층", "고기특식"], "upvotes": 0, "downvotes": 0, "map_query": "라온한식뷔페 광명GIDC점", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EB%9D%BC%EC%98%A8%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98%20%EA%B4%91%EB%AA%85GIDC%EC%A0%90", "kakao_map": "https://map.kakao.com/link/search/%EB%9D%BC%EC%98%A8%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98%20%EA%B4%91%EB%AA%85GIDC%EC%A0%90", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B2%BD%EA%B8%B0%20%EA%B4%91%EB%AA%85%EC%8B%9C%20%EC%9D%BC%EC%A7%81%EB%A1%9C%2043", "menu": {"main": "매콤 춘천닭갈비 & 군만두", "soup": "칼칼 어묵탕", "sides": "청포묵무침, 콩나물무침, 양배추샐러드", "special": "셀프 토스트 코너"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 44, "region": "광명시", "name": "울림푸드 한식뷔페 GIDC점", "building": "광명역 GIDC 2층", "address": "경기 광명시 일직로 43", "price": 8000, "feature": "GIDC 2층 위치, 깔끔한 밑반찬과 국, 쾌적한 환기", "channel": "네이버 플레이스", "status": "검증완료", "note": "2층 여유로운 식사", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "광명 울림푸드 한식뷔페 GIDC점", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B4%91%EB%AA%85%20%EC%9A%B8%EB%A6%BC%ED%91%B8%EB%93%9C%20%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98%20GIDC%EC%A0%90", "kakao_map": "https://map.kakao.com/link/search/%EA%B4%91%EB%AA%85%20%EC%9A%B8%EB%A6%BC%ED%91%B8%EB%93%9C%20%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98%20GIDC%EC%A0%90", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B2%BD%EA%B8%B0%20%EA%B4%91%EB%AA%85%EC%8B%9C%20%EC%9D%BC%EC%A7%81%EB%A1%9C%2043", "menu": {"main": "안동 간장찜닭 & 동그랑땡", "soup": "얼큰 순두부찌개", "sides": "도토리묵야채무침, 미역줄기볶음, 깍두기", "special": "식혜 디저트 제공"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 45, "region": "광명시", "name": "더쉐프 한식뷔페 광명역자이타워점", "building": "광명역 자이타워 C동 2층", "address": "경기 광명시 새빛공원로 67", "price": 7500, "feature": "라면바, 샐러드바, 시리얼/우유, 식빵 토스트 구비, 2층 전망 훌륭", "channel": "네이버 플레이스", "status": "검증완료", "note": "식권 10+1 증정 행사", "tags": ["라면기계", "샐러드바", "지상층", "디저트후식"], "upvotes": 0, "downvotes": 0, "map_query": "더쉐프 한식뷔페 광명역자이타워점", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EB%8D%94%EC%89%90%ED%94%84%20%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98%20%EA%B4%91%EB%AA%85%EC%97%AD%EC%9E%90%EC%9D%B4%ED%83%80%EC%9B%8C%EC%A0%90", "kakao_map": "https://map.kakao.com/link/search/%EB%8D%94%EC%89%90%ED%94%84%20%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98%20%EA%B4%91%EB%AA%85%EC%97%AD%EC%9E%90%EC%9D%B4%ED%83%80%EC%9B%8C%EC%A0%90", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B2%BD%EA%B8%B0%20%EA%B4%91%EB%AA%85%EC%8B%9C%20%EC%83%88%EB%B9%9B%EA%B3%B5%EC%9B%90%EB%A1%9C%2067", "menu": {"main": "매콤 닭볶음탕 & 생선구이", "soup": "얼큰 소고기뭇국", "sides": "잡채, 도토리묵, 계란찜", "special": "라면바 & 시리얼 우유 & 토스트"}, "menu_type": "real", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 46, "region": "광명시", "name": "이즈밥 한식뷔페", "building": "광명 M클러스터 지식산업센터 (중앙대병원 옆)", "address": "경기 광명시 일직동 501-4", "price": 8000, "feature": "슬러시/식혜/매실차/원두커피 무제한, 2시간 무료주차, 매장 청결", "channel": "네이버 플레이스", "status": "검증완료", "note": "병원 및 지산 직장인 성지", "tags": ["디저트후식"], "upvotes": 0, "downvotes": 0, "map_query": "광명 이즈밥 한식뷔페", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B4%91%EB%AA%85%20%EC%9D%B4%EC%A6%88%EB%B0%A5%20%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98", "kakao_map": "https://map.kakao.com/link/search/%EA%B4%91%EB%AA%85%20%EC%9D%B4%EC%A6%88%EB%B0%A5%20%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B2%BD%EA%B8%B0%20%EA%B4%91%EB%AA%85%EC%8B%9C%20%EC%9D%BC%EC%A7%81%EB%8F%99%20501-4", "menu": {"main": "고추장 삼겹불고기 & 모듬튀김", "soup": "칼칼 김치찌개", "sides": "어묵볶음, 마카로니샐러드, 계절나물", "special": "슬러시 2종 & 식혜 & 원두커피 무제한"}, "menu_type": "real", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 47, "region": "광명시", "name": "빛고을 한식뷔페", "building": "에이스광명타워", "address": "경기 광명시 하안로 108", "price": 7500, "feature": "소하동 지식산업센터 직장인 점심 성지, 푸짐한 집밥 찬류", "channel": "네이버 플레이스", "status": "검증완료", "note": "소하 지산 터줏대감", "tags": [], "upvotes": 0, "downvotes": 0, "map_query": "광명 빛고을 한식뷔페", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B4%91%EB%AA%85%20%EB%B9%9B%EA%B3%A0%EC%9D%84%20%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98", "kakao_map": "https://map.kakao.com/link/search/%EA%B4%91%EB%AA%85%20%EB%B9%9B%EA%B3%A0%EC%9D%84%20%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B2%BD%EA%B8%B0%20%EA%B4%91%EB%AA%85%EC%8B%9C%20%ED%95%98%EC%95%88%EB%A1%9C%20108", "menu": {"main": "오삼불고기 & 계란말이", "soup": "시원한 북어해장국", "sides": "무생채, 비엔나소시지조림, 상추쌈", "special": "라면 셀프바 운영"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 48, "region": "광명시", "name": "은빛고을 한식뷔페", "building": "광명역 일직동 상가 / GIDC 인근", "address": "경기 광명시 일직로 43", "price": 8000, "feature": "가성비 한식뷔페, 신선한 야채 쌈채소와 제육볶음 상시 구비", "channel": "네이버 플레이스", "status": "검증완료", "note": "일직동 직장인 인기", "tags": [], "upvotes": 0, "downvotes": 0, "map_query": "광명 은빛고을 한식뷔페", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B4%91%EB%AA%85%20%EC%9D%80%EB%B9%9B%EA%B3%A0%EC%9D%84%20%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98", "kakao_map": "https://map.kakao.com/link/search/%EA%B4%91%EB%AA%85%20%EC%9D%80%EB%B9%9B%EA%B3%A0%EC%9D%84%20%ED%95%9C%EC%8B%9D%EB%B7%94%ED%8E%98", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B2%BD%EA%B8%B0%20%EA%B4%91%EB%AA%85%EC%8B%9C%20%EC%9D%BC%EC%A7%81%EB%A1%9C%2043", "menu": {"main": "묵은지 등갈비찜 & 두부김치", "soup": "맑은 콩나물국", "sides": "동태전, 연근조림, 열무김치", "special": "매실차 & 둥글레차"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 49, "region": "광명시", "name": "명성한식부페", "building": "소하동 단독필지 / 오리로 대로변", "address": "경기 광명시 오리로 397", "price": 7500, "feature": "기사식당 겸 직장인 뷔페, 깊은 찌개 손맛과 나물류 우수", "channel": "네이버 플레이스", "status": "검증완료", "note": "단골 기사님/직장인 다수", "tags": [], "upvotes": 0, "downvotes": 0, "map_query": "광명 명성한식부페", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B4%91%EB%AA%85%20%EB%AA%85%EC%84%B1%ED%95%9C%EC%8B%9D%EB%B6%80%ED%8E%98", "kakao_map": "https://map.kakao.com/link/search/%EA%B4%91%EB%AA%85%20%EB%AA%85%EC%84%B1%ED%95%9C%EC%8B%9D%EB%B6%80%ED%8E%98", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B2%BD%EA%B8%B0%20%EA%B4%91%EB%AA%85%EC%8B%9C%20%EC%98%A4%EB%A6%AC%EB%A1%9C%20397", "menu": {"main": "버섯 소불고기 & 생선가스", "soup": "맑은 소고기무국", "sides": "오징어초무침, 감자채볶음, 겉절이", "special": "탄산음료 & 후식 누룽지"}, "menu_type": "sample", "hours": "월~토 11:00~15:00 (일 휴무)", "closed_rule": "매주 일요일 정기휴무 (토요일 정상영업)", "has_dinner": false, "open_saturday": true}, {"id": 50, "region": "광명시", "name": "산까치뷔페", "building": "철산동 / 광명사거리 상권", "address": "경기 광명시 오리로856번길 20", "price": 7000, "feature": "7,000원 전통 가성비 한식뷔페, 푸짐한 시장 인심", "channel": "네이버 플레이스", "status": "검증완료", "note": "철산/광명사거리 가성비", "tags": [], "upvotes": 0, "downvotes": 0, "map_query": "광명 산까치뷔페", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B4%91%EB%AA%85%20%EC%82%B0%EA%B9%8C%EC%B9%98%EB%B7%94%ED%8E%98", "kakao_map": "https://map.kakao.com/link/search/%EA%B4%91%EB%AA%85%20%EC%82%B0%EA%B9%8C%EC%B9%98%EB%B7%94%ED%8E%98", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B2%BD%EA%B8%B0%20%EA%B4%91%EB%AA%85%EC%8B%9C%20%EC%98%A4%EB%A6%AC%EB%A1%9C856%EB%B2%88%EA%B8%B8%2020", "menu": {"main": "매콤 춘천닭갈비 & 군만두", "soup": "칼칼 어묵탕", "sides": "청포묵무침, 콩나물무침, 양배추샐러드", "special": "셀프 토스트 코너"}, "menu_type": "sample", "hours": "월~토 11:00~15:00 (일 휴무)", "closed_rule": "매주 일요일 정기휴무 (토요일 정상영업)", "has_dinner": false, "open_saturday": true}, {"id": 51, "region": "광명시", "name": "하안현대테라타워 구내식당", "building": "현대테라타워 광명 지하 1층", "address": "경기 광명시 오리로 651번길 8", "price": 8000, "feature": "2023년 준공 최신축 대형 지산 구내식당, 셀렉다이닝형 뷔페 운영", "channel": "네이버 플레이스", "status": "검증완료", "note": "하안동 우체국사거리 앞", "tags": ["지상층"], "upvotes": 0, "downvotes": 0, "map_query": "광명 하안현대테라타워 구내식당", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B4%91%EB%AA%85%20%ED%95%98%EC%95%88%ED%98%84%EB%8C%80%ED%85%8C%EB%9D%BC%ED%83%80%EC%9B%8C%20%EA%B5%AC%EB%82%B4%EC%8B%9D%EB%8B%B9", "kakao_map": "https://map.kakao.com/link/search/%EA%B4%91%EB%AA%85%20%ED%95%98%EC%95%88%ED%98%84%EB%8C%80%ED%85%8C%EB%9D%BC%ED%83%80%EC%9B%8C%20%EA%B5%AC%EB%82%B4%EC%8B%9D%EB%8B%B9", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B2%BD%EA%B8%B0%20%EA%B4%91%EB%AA%85%EC%8B%9C%20%EC%98%A4%EB%A6%AC%EB%A1%9C%20651%EB%B2%88%EA%B8%B8%208", "menu": {"main": "안동 간장찜닭 & 동그랑땡", "soup": "얼큰 순두부찌개", "sides": "도토리묵야채무침, 미역줄기볶음, 깍두기", "special": "식혜 디저트 제공"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}, {"id": 52, "region": "광명시", "name": "소하테크노파크 구내식당", "building": "광명테크노파크 A/B동 지하", "address": "경기 광명시 하안로 60", "price": 7000, "feature": "소하동 1세대 지산 구내식당, 안정적인 가성비와 식단 밸런스", "channel": "네이버 플레이스", "status": "검증완료", "note": "기아차 인근 직장인 이용", "tags": [], "upvotes": 0, "downvotes": 0, "map_query": "광명 소하테크노파크 구내식당", "naver_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B4%91%EB%AA%85%20%EC%86%8C%ED%95%98%ED%85%8C%ED%81%AC%EB%85%B8%ED%8C%8C%ED%81%AC%20%EA%B5%AC%EB%82%B4%EC%8B%9D%EB%8B%B9", "kakao_map": "https://map.kakao.com/link/search/%EA%B4%91%EB%AA%85%20%EC%86%8C%ED%95%98%ED%85%8C%ED%81%AC%EB%85%B8%ED%8C%8C%ED%81%AC%20%EA%B5%AC%EB%82%B4%EC%8B%9D%EB%8B%B9", "naver_addr_map": "https://m.map.naver.com/search2/search.naver?query=%EA%B2%BD%EA%B8%B0%20%EA%B4%91%EB%AA%85%EC%8B%9C%20%ED%95%98%EC%95%88%EB%A1%9C%2060", "menu": {"main": "한방 돼지갈비찜 & 해물파전", "soup": "구수한 된장찌개", "sides": "궁중잡채, 취나물볶음, 포기김치", "special": "후식 숭늉 완비"}, "menu_type": "sample", "hours": "평일 11:00~14:00 (주말 휴무)", "closed_rule": "매주 토·일요일 및 공휴일 휴무", "has_dinner": false, "open_saturday": false}];
+
+    const now = new Date();
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
+    const curYear = now.getFullYear();
+    const curMonth = now.getMonth() + 1;
+    const curDate = now.getDate();
+    const curDay = now.getDay();
+    const curHour = now.getHours();
+    const curMin = now.getMinutes();
+    const dateFormatted = `${curYear}년 ${curMonth}월 ${curDate}일 (${days[curDay]})`;
+
+    document.getElementById("currentDateStr").innerText = dateFormatted;
+
+    function getStoreLiveStatus(p) {
+      if (curDay === 0) return { text: "🔴 일요휴무", class: "status-closed" };
+      if (curDay === 6) {
+        if (p.open_saturday) {
+          if (curHour >= 11 && curHour < 15) return { text: "🟢 토요영업중", class: "status-open" };
+          return { text: "⚪ 토요마감", class: "status-closed" };
+        }
+        return { text: "🔴 주말휴무", class: "status-closed" };
+      }
+      const curTimeVal = curHour * 60 + curMin;
+      const lunchStart = 11 * 60;
+      const lunchEnd = 14 * 60;
+      const dinnerStart = 17 * 60 + 20;
+      const dinnerEnd = 19 * 60 + 30;
+
+      if (curTimeVal >= lunchStart && curTimeVal < lunchEnd) {
+        return { text: "🟢 점심영업중", class: "status-open" };
+      } else if (curTimeVal < lunchStart) {
+        return { text: "⏳ 11시 오픈", class: "status-break" };
+      } else if (curTimeVal >= lunchEnd && curTimeVal < dinnerStart) {
+        if (p.has_dinner) return { text: "🟠 준비중 (17:30 저녁)", class: "status-break" };
+        return { text: "⚪ 점심마감", class: "status-closed" };
+      } else if (curTimeVal >= dinnerStart && curTimeVal < dinnerEnd) {
+        if (p.has_dinner) return { text: "🟢 저녁영업중", class: "status-open" };
+        return { text: "⚪ 오늘마감", class: "status-closed" };
+      } else {
+        return { text: "⚪ 오늘마감", class: "status-closed" };
+      }
+    }
+
+    let state = {
+      favorites: [],
+      votes: {},
+      selectedRegion: "전체",
+      selectedTag: null,
+      searchQuery: "",
+      onlyFavorites: false,
+      metrics: {
+        favorites_count: 0,
+        votes_count: 0,
+        views_count: 0
+      }
+    };
+
+    if (window.pickle && window.pickle.widget && window.pickle.widget.state) {
+      try {
+        state = Object.assign(state, window.pickle.widget.state);
+      } catch(e) {}
+    }
+
+    async function saveState() {
+      state.metrics.favorites_count = state.favorites.length;
+      state.metrics.votes_count = Object.keys(state.votes).length;
+      if (window.pickle && window.pickle.widget && window.pickle.widget.save) {
+        try {
+          await window.pickle.widget.save(state);
+        } catch(e) {}
+      }
+    }
+
+    function sendSignal(msg) {
+      if (window.pickle && window.pickle.widget && window.pickle.widget.signal) {
+        window.pickle.widget.signal(msg);
+      }
+    }
+
+    if (window.pickle && window.pickle.widget) {
+      window.pickle.widget.oncommand = (cmdLine) => {
+        const parts = cmdLine.trim().split(/\s+/);
+        const cmd = parts[0];
+        const arg = parts.slice(1).join(" ");
+
+        if (cmd === "filter") {
+          const map = { "gasan": "가산디지털단지", "guro": "구로디지털단지", "gwangmyeong": "광명시", "all": "전체" };
+          state.selectedRegion = map[arg.toLowerCase()] || "전체";
+          renderApp();
+          saveState();
+        } else if (cmd === "search") {
+          state.searchQuery = arg;
+          document.getElementById("searchInput").value = arg;
+          renderApp();
+          saveState();
+        } else if (cmd === "recommend") {
+          openRouletteModal();
+          runSpin();
+        } else if (cmd === "favorite") {
+          const id = Number(arg);
+          toggleFavorite(id);
+        }
+      };
+    }
+
+    function filterByCluster(regionKey, keyword) {
+      if (regionKey === '가산') state.selectedRegion = '가산디지털단지';
+      if (regionKey === '구로') state.selectedRegion = '구로디지털단지';
+      if (regionKey === '광명') state.selectedRegion = '광명시';
+      state.searchQuery = keyword;
+      document.getElementById("searchInput").value = keyword;
+      document.getElementById("clearSearchBtn").style.display = "block";
+      renderApp();
+      saveState();
+    }
+
+    function getFilteredPlaces() {
+      return RAW_PLACES.filter(p => {
+        if (state.selectedRegion !== "전체" && p.region !== state.selectedRegion) return false;
+        if (state.selectedTag && !p.tags.includes(state.selectedTag)) return false;
+        if (state.onlyFavorites && !state.favorites.includes(p.id)) return false;
+        if (state.searchQuery) {
+          const q = state.searchQuery.toLowerCase();
+          const matchText = (p.name + " " + p.building + " " + p.address + " " + p.feature + " " + p.note + " " + (p.menu.main || "")).toLowerCase();
+          if (!matchText.includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderApp() {
+      const listEl = document.getElementById("cardList");
+      const filtered = getFilteredPlaces();
+      
+      document.getElementById("matchCount").innerText = filtered.length;
+      document.getElementById("favCount").innerText = state.favorites.length;
+
+      document.querySelectorAll(".region-tab").forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.region === state.selectedRegion);
+      });
+
+      document.querySelectorAll(".tag-chip").forEach(chip => {
+        chip.classList.toggle("active", chip.dataset.tag === state.selectedTag);
+      });
+
+      document.getElementById("favFilterBtn").classList.toggle("active", state.onlyFavorites);
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🍽️</div>
+            <div>조건에 맞는 한식뷔페가 없습니다.</div>
+            <div style="font-size:12px; margin-top:4px;">다른 검색어나 필터를 선택해 보세요.</div>
+          </div>
+        `;
+        return;
+      }
+
+      let html = "";
+      filtered.forEach(p => {
+        const isFav = state.favorites.includes(p.id);
+        const myVote = state.votes[p.id];
+        const upCount = (myVote === 'up' ? 1 : 0);
+        const downCount = (myVote === 'down' ? 1 : 0);
+        const liveStat = getStoreLiveStatus(p);
+
+        let badgeClass = "badge-gasan";
+        if (p.region === "구로디지털단지") badgeClass = "badge-guro";
+        if (p.region === "광명시") badgeClass = "badge-gwang";
+
+        const isRealMenu = p.menu_type === 'real';
+
+        html += `
+          <div class="buffet-card" id="card-${p.id}">
+            <div class="card-top-badges">
+              <span class="badge ${badgeClass}">${p.region.replace("디지털단지", "")}</span>
+              <span class="badge" style="background:#F2F4F6; color:#4E5968;">${p.building}</span>
+              <span class="status-badge ${liveStat.class}">${liveStat.text}</span>
+              <span class="badge badge-price">${p.price.toLocaleString()}원</span>
+            </div>
+            
+            <div class="card-title-row">
+              <div class="card-title">${p.name}</div>
+              <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(${p.id})">${isFav ? '★' : '☆'}</button>
+            </div>
+
+            <div class="meta-line">
+              <span class="meta-item">⏰ ${p.hours}</span>
+              <span class="meta-item">📍 <a href="${p.naver_addr_map}" target="_blank" style="text-decoration:none; color:inherit;">${p.address.replace('서울특별시 ', '').replace('경기도 ', '')}</a></span>
+            </div>
+
+            <!-- Compact Today Menu Box with Real vs Sample Badge -->
+            <div class="menu-compact-box ${isRealMenu ? 'real-menu-box' : ''}">
+              <div class="menu-compact-header">
+                <span>📋 ${dateFormatted} 식단</span>
+                <span class="${isRealMenu ? 'badge-real-label' : 'badge-sample-label'}">
+                  ${isRealMenu ? '🟢 실제 확인 식단' : '🟡 화면 예시 (샘플)'}
+                </span>
+              </div>
+              <div class="menu-compact-main">🍖 메인: ${p.menu.main}</div>
+              <div class="menu-compact-sub">🍲 ${p.menu.soup} · 찬: ${p.menu.sides}</div>
+            </div>
+
+            <div class="card-tags">
+              ${p.tags.map(t => `<span class="tag">#${t}</span>`).join('')}
+              <span class="tag" style="background:#FFF9E6; color:#B78103;">💡 ${p.note}</span>
+            </div>
+
+            <div class="card-footer">
+              <div class="revisit-vote">
+                <span class="revisit-label">다시갈지도?</span>
+                <button class="vote-btn ${myVote === 'up' ? 'voted-up' : ''}" onclick="voteRevisit(${p.id}, 'up')">👍 ${upCount}</button>
+                <button class="vote-btn ${myVote === 'down' ? 'voted-down' : ''}" onclick="voteRevisit(${p.id}, 'down')">👎 ${downCount}</button>
+              </div>
+              <div class="card-btn-group">
+                <a href="${p.naver_map}" target="_blank" class="map-link-btn">길찾기 🧭</a>
+                <button class="menu-info-btn" onclick="openMenuInfo(${p.id})">상세 📢</button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      listEl.innerHTML = html;
+    }
+
+    function toggleFavorite(id) {
+      const idx = state.favorites.indexOf(id);
+      const target = RAW_PLACES.find(p => p.id === id);
+      if (idx > -1) {
+        state.favorites.splice(idx, 1);
+        sendSignal(`사용자가 '${target.name}' 찜을 해제했습니다.`);
+      } else {
+        state.favorites.push(id);
+        sendSignal(`사용자가 '${target.name}' 식당을 즐겨찾기에 추가했습니다.`);
+      }
+      saveState();
+      renderApp();
+    }
+
+    function voteRevisit(id, type) {
+      const target = RAW_PLACES.find(p => p.id === id);
+      if (state.votes[id] === type) {
+        delete state.votes[id];
+      } else {
+        state.votes[id] = type;
+        if (type === 'up') {
+          sendSignal(`사용자가 '${target.name}'에 '다시 간다(O)' 추천 투표를 했습니다.`);
+        }
+      }
+      saveState();
+      renderApp();
+    }
+
+    function openMenuInfo(id) {
+      const p = RAW_PLACES.find(x => x.id === id);
+      const liveStat = getStoreLiveStatus(p);
+      const isReal = p.menu_type === 'real';
+
+      document.getElementById("infoModalTitle").innerText = p.name;
+      document.getElementById("infoModalBody").innerHTML = `
+        <div style="margin-bottom:10px; display:flex; gap:6px; align-items:center;">
+          <span class="status-badge ${liveStat.class}" style="font-size:12px; padding:3px 8px;">${liveStat.text}</span>
+          <span class="${isReal ? 'badge-real-label' : 'badge-sample-label'}" style="font-size:11px; padding:3px 8px;">
+            ${isReal ? '🟢 실제 최근 수집 식단' : '🟡 화면 예시용 식단 (샘플)'}
+          </span>
+        </div>
+
+        <div style="background:#FFF9E6; border:1px solid #FFEBA4; border-radius:10px; padding:12px; margin-bottom:12px;">
+          <div style="font-weight:800; color:#B78103; font-size:14px; margin-bottom:5px;">📋 ${dateFormatted} 식단표</div>
+          <div style="font-size:12px; color:#191F28; line-height:1.5;">
+            <strong>🍖 메인특식:</strong> ${p.menu.main}<br>
+            <strong>🍲 국/찌개:</strong> ${p.menu.soup}<br>
+            <strong>🥗 반찬/사이드:</strong> ${p.menu.sides}<br>
+            <strong>✨ 특별코너:</strong> ${p.menu.special}
+          </div>
+          ${isReal ? '' : '<div style="font-size:11px; color:#B45309; margin-top:6px; font-style:italic;">* 위 식단은 프로토타입 예시이며, 실제 당일 메뉴는 아래 공지 채널을 확인해 주세요.</div>'}
+        </div>
+
+        <div style="margin-bottom:12px; font-size:12px; background:#F8F9FA; padding:10px; border-radius:8px;">
+          <strong>⏰ 이용시간:</strong> ${p.hours}<br>
+          <strong>🚫 휴무 안내:</strong> ${p.closed_rule}<br>
+          <strong>🏢 상세 위치:</strong> ${p.building}<br>
+          <strong>📍 도로명:</strong> ${p.address}<br>
+          <strong>💵 식사 가격:</strong> ${p.price.toLocaleString()}원
+        </div>
+
+        <div style="background:#F2F4F6; padding:10px; border-radius:8px; margin-bottom:12px; font-size:12px;">
+          <strong>📢 당일 식단 공지:</strong> ${p.channel} (오전 10:30~11:00 업로드)
+        </div>
+
+        <div style="font-size:12px; color:#E03E3E; font-weight:700; margin-bottom:12px;">
+          💡 꿀팁: ${p.note}
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <a href="${p.naver_map}" target="_blank" style="text-align:center; background:#0E8A16; color:#fff; padding:9px; border-radius:7px; text-decoration:none; font-weight:700; font-size:12px;">네이버 지도 '${p.map_query}' 검색 🧭</a>
+          <a href="${p.naver_addr_map}" target="_blank" style="text-align:center; background:#1E64D4; color:#fff; padding:9px; border-radius:7px; text-decoration:none; font-weight:700; font-size:12px;">건물 도로명 주소로 길찾기 📍</a>
+          <a href="${p.kakao_map}" target="_blank" style="text-align:center; background:#FEE500; color:#191F28; padding:9px; border-radius:7px; text-decoration:none; font-weight:700; font-size:12px;">카카오맵 길찾기 🗺️</a>
+        </div>
+      `;
+      document.getElementById("infoModal").style.display = "flex";
+      state.metrics.views_count++;
+      saveState();
+    }
+
+    function closeInfoModal() {
+      document.getElementById("infoModal").style.display = "none";
+    }
+
+    function openRouletteModal() {
+      document.getElementById("rouletteRegionName").innerText = state.selectedRegion;
+      document.getElementById("rouletteModal").style.display = "flex";
+    }
+    function closeRouletteModal() {
+      document.getElementById("rouletteModal").style.display = "none";
+    }
+
+    function runSpin() {
+      const candidates = getFilteredPlaces();
+      if (candidates.length === 0) return;
+
+      const btn = document.getElementById("spinActionBtn");
+      btn.disabled = true;
+      btn.innerText = "추첨 중... 🥁";
+
+      let count = 0;
+      const interval = setInterval(() => {
+        const rand = candidates[Math.floor(Math.random() * candidates.length)];
+        document.getElementById("rouletteName").innerText = rand.name;
+        document.getElementById("rouletteSub").innerText = `${rand.building} (${rand.price.toLocaleString()}원)`;
+        count++;
+        if (count > 15) {
+          clearInterval(interval);
+          const winner = candidates[Math.floor(Math.random() * candidates.length)];
+          document.getElementById("rouletteName").innerText = "🎉 " + winner.name;
+          document.getElementById("rouletteSub").innerText = `${winner.building} | ${winner.price.toLocaleString()}원 | ${winner.note}`;
+          btn.disabled = false;
+          btn.innerText = "다시 돌리기 🎯";
+          sendSignal(`오늘 점심 룰렛 결과로 '${winner.name}'(${winner.region})이 추천되었습니다.`);
+        }
+      }, 80);
+    }
+
+    document.getElementById("regionTabs").addEventListener("click", (e) => {
+      if (e.target.classList.contains("region-tab")) {
+        state.selectedRegion = e.target.dataset.region;
+        renderApp();
+        saveState();
+      }
+    });
+
+    document.getElementById("tagChips").addEventListener("click", (e) => {
+      if (e.target.classList.contains("tag-chip")) {
+        const tag = e.target.dataset.tag;
+        state.selectedTag = state.selectedTag === tag ? null : tag;
+        renderApp();
+        saveState();
+      }
+    });
+
+    document.getElementById("favFilterBtn").addEventListener("click", () => {
+      state.onlyFavorites = !state.onlyFavorites;
+      renderApp();
+      saveState();
+    });
+
+    document.getElementById("rouletteBtn").addEventListener("click", openRouletteModal);
+
+    const searchInput = document.getElementById("searchInput");
+    const clearBtn = document.getElementById("clearSearchBtn");
+
+    searchInput.addEventListener("input", (e) => {
+      state.searchQuery = e.target.value.trim();
+      clearBtn.style.display = state.searchQuery ? "block" : "none";
+      renderApp();
+    });
+
+    clearBtn.addEventListener("click", () => {
+      searchInput.value = "";
+      state.searchQuery = "";
+      clearBtn.style.display = "none";
+      renderApp();
+    });
+
+    const mapBox = document.getElementById("mapBox");
+    const toggleMapBtn = document.getElementById("toggleMapBtn");
+    toggleMapBtn.addEventListener("click", () => {
+      if (mapBox.style.display === "none") {
+        mapBox.style.display = "block";
+        toggleMapBtn.innerText = "지도 접기 ▴";
+      } else {
+        mapBox.style.display = "none";
+        toggleMapBtn.innerText = "지도 열기 ▾";
+      }
+    });
+
+    renderApp();
+  </script>
+</body>
+</html>
